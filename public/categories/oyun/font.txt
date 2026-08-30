@@ -1,0 +1,7 @@
+Font:
+Kalın Yazı: Metropolis Bold
+İnce Yazı: Metropolis Medium
+
+Renk:
+Beyaz: #FFFFF
+Pembe: #F6049D
