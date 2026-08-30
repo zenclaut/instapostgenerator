@@ -1,8 +1,7 @@
 import type { CategoryDefinition, CustomTemplate } from '../types/postTypes';
 
-
 /**
- * Önceden tanımlı kategoriler (categories/ dizinindeki dosyalarla senkronize)
+ * Önceden tanımlı kategoriler (categories/ dizinindeki tüm dosyalarla senkronize)
  */
 export const PRESET_CATEGORIES: CategoryDefinition[] = [
   {
@@ -43,6 +42,18 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
         zIndex: 20 // Low olan, bold olanın üstünde
       },
       {
+        id: 'gradient-full',
+        name: 'Tam Boy Gradyan (gradient-full.PNG)',
+        filename: 'gradient-full.PNG',
+        imageUrl: '/categories/haberler/gradient-full.PNG',
+        enabled: false,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 25
+      },
+      {
         id: 'corner',
         name: 'Köşe / Çerçeve (corner.PNG)',
         filename: 'corner.PNG',
@@ -68,7 +79,7 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
       },
       {
         id: 'logo',
-        name: 'Logo / Filigran (logo.PNG)',
+        name: 'Logo / Filigran Kırmızı (logo.PNG)',
         filename: 'logo.PNG',
         imageUrl: '/categories/haberler/logo.PNG',
         enabled: true,
@@ -77,6 +88,30 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
         scale: 1.0,
         opacity: 100,
         zIndex: 50
+      },
+      {
+        id: 'logo-white',
+        name: 'Logo / Filigran Beyaz (logo-white.PNG)',
+        filename: 'logo-white.PNG',
+        imageUrl: '/categories/haberler/logo-white.PNG',
+        enabled: false,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 52
+      },
+      {
+        id: 'swipe',
+        name: 'Yana Kaydır Rozeti (swipe.PNG)',
+        filename: 'swipe.PNG',
+        imageUrl: '/categories/haberler/swipe.PNG',
+        enabled: true,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 60
       }
     ]
   },
@@ -118,6 +153,18 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
         zIndex: 20 // Low olan üstte
       },
       {
+        id: 'gradient-full',
+        name: 'Tam Boy Gradyan (gradient-full.PNG)',
+        filename: 'gradient-full.PNG',
+        imageUrl: '/categories/oyun/gradient-full.PNG',
+        enabled: false,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 25
+      },
+      {
         id: 'corner',
         name: 'Köşe / Çerçeve (corner.PNG)',
         filename: 'corner.PNG',
@@ -143,7 +190,7 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
       },
       {
         id: 'logo',
-        name: 'Logo / Filigran (logo.PNG)',
+        name: 'Logo / Filigran Renkli (logo.PNG)',
         filename: 'logo.PNG',
         imageUrl: '/categories/oyun/logo.PNG',
         enabled: true,
@@ -152,6 +199,30 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
         scale: 1.0,
         opacity: 100,
         zIndex: 50
+      },
+      {
+        id: 'logo-white',
+        name: 'Logo / Filigran Beyaz (logo-white.PNG)',
+        filename: 'logo-white.PNG',
+        imageUrl: '/categories/oyun/logo-white.PNG',
+        enabled: false,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 52
+      },
+      {
+        id: 'swipe',
+        name: 'Yana Kaydır Rozeti (swipe.PNG)',
+        filename: 'swipe.PNG',
+        imageUrl: '/categories/oyun/swipe.PNG',
+        enabled: true,
+        offsetX: 0,
+        offsetY: 0,
+        scale: 1.0,
+        opacity: 100,
+        zIndex: 60
       }
     ]
   }
@@ -163,7 +234,7 @@ export const PRESET_CATEGORIES: CategoryDefinition[] = [
 export const DEFAULT_CUSTOM_TEMPLATES: CustomTemplate[] = [
   {
     id: 'tmpl-haberler-tam',
-    name: 'Haberler - Standart (Tüm Katmanlar)',
+    name: 'Haberler - Standart (Tüm Katmanlar & Yana Kaydır)',
     categoryId: 'haberler',
     layers: JSON.parse(JSON.stringify(PRESET_CATEGORIES[0].defaultLayers)),
     createdAt: Date.now(),
@@ -172,7 +243,7 @@ export const DEFAULT_CUSTOM_TEMPLATES: CustomTemplate[] = [
   },
   {
     id: 'tmpl-haberler-sade',
-    name: 'Haberler - Çerçevesiz Sade (Sadece Gradyan & Logo)',
+    name: 'Haberler - Sade (Sadece Gradyan & Logo)',
     categoryId: 'haberler',
     layers: PRESET_CATEGORIES[0].defaultLayers.map((l) => ({
       ...l,
@@ -184,7 +255,7 @@ export const DEFAULT_CUSTOM_TEMPLATES: CustomTemplate[] = [
   },
   {
     id: 'tmpl-oyun-tam',
-    name: 'Oyun - Standart (Tüm Katmanlar)',
+    name: 'Oyun - Standart (Tüm Katmanlar & Yana Kaydır)',
     categoryId: 'oyun',
     layers: JSON.parse(JSON.stringify(PRESET_CATEGORIES[1].defaultLayers)),
     createdAt: Date.now(),
@@ -197,7 +268,7 @@ export const DEFAULT_CUSTOM_TEMPLATES: CustomTemplate[] = [
     categoryId: 'oyun',
     layers: PRESET_CATEGORIES[1].defaultLayers.map((l) => ({
       ...l,
-      enabled: l.id !== 'logo'
+      enabled: l.id !== 'logo' && l.id !== 'logo-white'
     })),
     createdAt: Date.now(),
     updatedAt: Date.now(),

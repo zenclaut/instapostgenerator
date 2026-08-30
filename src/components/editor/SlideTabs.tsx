@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Copy, Trash2, ChevronLeft, ChevronRight, Layers, Sparkles } from 'lucide-react';
+import { Plus, Copy, Trash2, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import type { SlideData } from '../../types/postTypes';
 
 interface SlideTabsProps {
@@ -21,6 +21,8 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
   onDeleteSlide,
   onMoveSlide
 }) => {
+  const currentSlide = slides[activeSlideIndex] || slides[0];
+
   return (
     <div className="glass-panel rounded-2xl p-3 border border-slate-800 shadow-xl">
       <div className="flex items-center justify-between gap-3 mb-2 px-1">
@@ -38,24 +40,15 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
           </div>
         </div>
 
-        {/* Hızlı Sayfa Ekleme Butonları */}
+        {/* Sayfa Ekleme Butonu */}
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => onAddSlide('haberler')}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-semibold shadow-md shadow-red-900/30 transition-all active:scale-95"
-            title="Yeni Haber Sayfası Ekle"
+            onClick={() => onAddSlide(currentSlide?.categoryId || 'haberler')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold shadow-md shadow-red-900/30 transition-all active:scale-95"
+            title="Yeni Sayfa Ekle"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Sayfa Ekle</span>
-          </button>
-          
-          <button
-            onClick={() => onAddSlide('oyun')}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-purple-500/30 text-purple-300 text-xs font-medium transition-all"
-            title="Oyun Kategorisi Sayfası Ekle"
-          >
-            <Sparkles className="w-3 h-3 text-purple-400" />
-            <span>Oyun Sayfası</span>
           </button>
         </div>
       </div>
@@ -100,12 +93,6 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                 ) : (
                   <div className="text-[10px] text-slate-400 flex flex-col items-center">
                     <span>{activeLayersCount} Katman</span>
-                  </div>
-                )}
-                
-                {slide.showSwipeIndicator && (
-                  <div className="absolute bottom-0.5 right-0.5 text-[8px] bg-red-600/90 text-white px-1 rounded-sm font-bold">
-                    ➔
                   </div>
                 )}
               </div>

@@ -327,23 +327,8 @@ export async function renderSlideToCanvas(
   }
   ctx.restore();
 
-  // 5. Yana Kaydır ➔ Rozeti (Sağ Alt)
-  if (slide.showSwipeIndicator) {
-    ctx.save();
-    ctx.font = `800 20px ${fontFam}`;
-    ctx.fillStyle = slide.swipeTextColor || '#FFFFFF';
-    ctx.textAlign = 'right';
-    ctx.letterSpacing = '1.5px';
-    ctx.shadowColor = 'rgba(0,0,0,0.9)';
-    ctx.shadowBlur = 6;
+  // Sayfa Gösterge Noktaları (Pagination Dots)
 
-    const swipeY = baseHeight - 65;
-    const swipeX = baseWidth - 70;
-    ctx.fillText(slide.swipeText || 'YANA KAYDIR ➔', swipeX, swipeY);
-    ctx.restore();
-  }
-
-  // 6. Sayfa Gösterge Noktaları (Pagination Dots)
   if (slide.showPaginationDots && totalSlides > 1) {
     ctx.save();
     const dotRadius = 4;
