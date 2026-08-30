@@ -238,6 +238,9 @@ export async function renderSlideToCanvas(
   }
 
   // 4. Metin Alanı ve Tipografi Yerleşimi
+  const textOffX = slide.textOffsetX || 0;
+  const textOffY = slide.textOffsetY || 0;
+
   const contentPaddingX = 80;
   const maxTextWidth = baseWidth - (contentPaddingX * 2);
   const bottomReservedArea = 140;
@@ -262,7 +265,7 @@ export async function renderSlideToCanvas(
   const totalBodyHeight = wrappedLines.length * lineHeight;
   const totalContentBlockHeight = totalTitleHeight + totalBodyHeight;
 
-  let currentDrawY = textBottomAnchor - totalContentBlockHeight + 10;
+  let currentDrawY = textBottomAnchor - totalContentBlockHeight + 10 + textOffY;
 
   // Başlık Çizimi
   if (titleLines.length > 0) {
@@ -274,7 +277,7 @@ export async function renderSlideToCanvas(
     ctx.shadowBlur = 10;
     ctx.shadowOffsetY = 2;
 
-    const startX = slide.textAlign === 'center' ? baseWidth / 2 : (slide.textAlign === 'right' ? baseWidth - contentPaddingX : contentPaddingX);
+    const startX = (slide.textAlign === 'center' ? baseWidth / 2 : (slide.textAlign === 'right' ? baseWidth - contentPaddingX : contentPaddingX)) + textOffX;
 
     for (const tLine of titleLines) {
       ctx.fillText(tLine, startX, currentDrawY + titleFontSize);
@@ -291,15 +294,16 @@ export async function renderSlideToCanvas(
   ctx.shadowOffsetY = 2;
 
   for (const line of wrappedLines) {
-    let lineStartX = contentPaddingX;
+    let lineStartX = contentPaddingX + textOffX;
     if (slide.textAlign === 'center') {
-      lineStartX = (baseWidth - line.totalWidth) / 2;
+      lineStartX = ((baseWidth - line.totalWidth) / 2) + textOffX;
     } else if (slide.textAlign === 'right') {
-      lineStartX = baseWidth - contentPaddingX - line.totalWidth;
+      lineStartX = (baseWidth - contentPaddingX - line.totalWidth) + textOffX;
     }
 
     let cursorX = lineStartX;
     const textBaselineY = currentDrawY + bodyFontSize;
+
 
     for (const span of line.spans) {
       let fontStyle = '';

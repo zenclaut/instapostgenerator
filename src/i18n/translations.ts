@@ -114,8 +114,13 @@ export const translations = {
     titleOptional: 'Üst Başlık (İsteğe Bağlı)',
     titlePlaceholder: 'Örn: SON DAKİKA, DUYURU, GÜNCEL GELİŞME...',
     contentPlaceholder: 'Buraya post açıklama metnini yazın. İstediğiniz kelimeleri seçip üstteki butonlarla renklendirebilir veya kalınlaştırabilirsiniz...',
+    textPositioning: 'Metin Konumu (Yukarı / Aşağı & Sağa / Sola)',
+    textOffsetYLabel: 'Dikey Konum (Y Offset)',
+    textOffsetXLabel: 'Yatay Konum (X Offset)',
+    resetTextPosition: 'Metin Konumunu Sıfırla',
 
     // Slide Settings
+
     slideSettingsTitle: 'Sayfa Göstergeleri',
     slideSettingsSub: 'Carousel sayfa noktalarının görünümü',
     paginationDots: 'Sayfa Gösterge Noktaları (Dots)',
@@ -257,8 +262,13 @@ export const translations = {
     titleOptional: 'Header / Title (Optional)',
     titlePlaceholder: 'e.g.: BREAKING, ANNOUNCEMENT, LATEST NEWS...',
     contentPlaceholder: 'Type your post content here. Select words and use toolbar buttons to colorize or bold them...',
+    textPositioning: 'Text Position (Up / Down & Left / Right)',
+    textOffsetYLabel: 'Vertical Position (Y Offset)',
+    textOffsetXLabel: 'Horizontal Position (X Offset)',
+    resetTextPosition: 'Reset Text Position',
 
     // Slide Settings
+
     slideSettingsTitle: 'Slide Indicators',
     slideSettingsSub: 'Carousel pagination dots display',
     paginationDots: 'Pagination Dots',

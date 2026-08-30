@@ -71,14 +71,17 @@ export interface SlideData {
   // Sayfa Gösterge Noktaları
   showPaginationDots: boolean;
   
-  // Tipografi & Hizalama
+  // Tipografi, Hizalama & Konumlandırma
   fontSize: number;
   titleFontSize: number;
   fontFamily: string;
   textAlign: 'left' | 'center' | 'right';
   textColor: string;
   highlightColor: string;     // Kategoriye özel vurgu rengi (#FF5145, #F6049D vb.)
+  textOffsetX?: number;       // Metin yatay konumu (px)
+  textOffsetY?: number;       // Metin dikey konumu (px)
 }
+
 
 export interface ProjectData {
   id: string;
