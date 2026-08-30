@@ -3,14 +3,13 @@ import {
   X, 
   Download, 
   Archive, 
-  Check, 
   Sparkles, 
-  Copy,
   Sliders
 } from 'lucide-react';
+import type { ProjectData } from '../../types/postTypes';
+import { generateSlideDataUrl, downloadSingleSlide, exportProjectAsZip, type ExportProgress } from '../../engine/zipExporter';
+import { useLanguage } from '../../i18n/LanguageContext';
 
-import type { ProjectData, SlideData } from '../../types/postTypes';
-import { exportProjectAsZip, downloadSingleSlide, renderSlideToDataUrl, copySlideToClipboard } from '../../engine/zipExporter';
 
 interface ExportModalProps {
   project: ProjectData;
@@ -18,85 +17,99 @@ interface ExportModalProps {
   onClose: () => void;
 }
 
-export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClose }) => {
-  const [scaleFactor, setScaleFactor] = useState<number>(1);
-  const [isExportingZip, setIsExportingZip] = useState<boolean>(false);
-  const [exportProgress, setExportProgress] = useState<{ current: number; total: number } | null>(null);
+export const ExportModal: React.FC<ExportModalProps> = ({
+  project,
+  isOpen,
+  onClose
+}) => {
+  const { t } = useLanguage();
+  const [scaleFactor, setScaleFactor] = useState<1 | 2>(1);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [isExportingZip, setIsExportingZip] = useState(false);
+  const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
 
-  // Modal açıldığında tüm sayfaların yüksek kaliteli önizleme resimlerini oluştur
+  // Tüm slaytların önizlemelerini oluştur
   useEffect(() => {
     if (!isOpen) return;
 
-    let isMounted = true;
-
-    const generateAllPreviews = async () => {
+    let active = true;
+    const generateAll = async () => {
       const urls: string[] = [];
       for (let i = 0; i < project.slides.length; i++) {
-        const url = await renderSlideToDataUrl(
-          project.slides[i],
-          i,
-          project.slides.length,
-          project.aspectRatio,
-          0.8
-        );
-        urls.push(url);
+        try {
+          const url = await generateSlideDataUrl(
+            project.slides[i],
+            i,
+            project.slides.length,
+            project.aspectRatio,
+            scaleFactor
+          );
+          if (active) urls.push(url);
+        } catch (e) {
+          console.warn('Önizleme oluşturma hatası:', e);
+        }
       }
-      if (isMounted) setPreviews(urls);
+      if (active) setPreviews(urls);
     };
 
-    generateAllPreviews();
+    generateAll();
 
     return () => {
-      isMounted = false;
+      active = false;
     };
-  }, [isOpen, project]);
+  }, [isOpen, project, scaleFactor]);
 
   if (!isOpen) return null;
 
+  // ZIP İndirme
   const handleExportZip = async () => {
     setIsExportingZip(true);
-    setExportProgress({ current: 1, total: project.slides.length });
     try {
-      await exportProjectAsZip(project, scaleFactor, (current, total) => {
-        setExportProgress({ current, total });
+      await exportProjectAsZip(project, scaleFactor, (progress) => {
+        setExportProgress(progress);
       });
     } catch (err) {
       console.error('ZIP dışa aktarma hatası:', err);
+      alert('ZIP indirilirken bir hata oluştu.');
     } finally {
       setIsExportingZip(false);
       setExportProgress(null);
     }
   };
 
-  const handleDownloadSingle = (slide: SlideData, index: number) => {
-    downloadSingleSlide(slide, index, project.slides.length, project.aspectRatio, scaleFactor, project.title);
-  };
-
-  const handleCopySingle = async (slide: SlideData, index: number) => {
-    const ok = await copySlideToClipboard(slide, index, project.slides.length, project.aspectRatio);
-    if (ok) {
-      setCopiedIndex(index);
-      setTimeout(() => setCopiedIndex(null), 2000);
-    }
+  // Tekli PNG İndirme
+  const handleDownloadSingle = (slideIndex: number) => {
+    downloadSingleSlide(
+      project.slides[slideIndex],
+      slideIndex,
+      project.slides.length,
+      project.aspectRatio,
+      scaleFactor,
+      project.title
+    );
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="relative w-full max-w-5xl max-h-[90vh] bg-slate-950 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div 
+        className="relative w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-slate-950 border border-slate-800 shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Başlığı */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-900/60">
+        <div className="flex items-center justify-between p-5 border-b border-slate-800/80 bg-slate-900/60">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-red-600/20 border border-red-500/30 flex items-center justify-center text-red-400">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-base font-bold text-white">
-                Dışa Aktarma & İndirme Galerisi
+                {t('exportGalleryTitle')}
               </h2>
               <p className="text-xs text-slate-400">
-                {project.slides.length} Sayfalık Carousel • Instagram {project.aspectRatio === '4:5' ? 'Dikey (1080x1440)' : '1:1 Kare (1080x1080)'}
+                {t('exportGallerySub', {
+                  count: project.slides.length,
+                  ratio: project.aspectRatio === '4:5' ? t('portraitRatio') : t('squareRatio')
+                })}
               </p>
             </div>
           </div>
@@ -116,7 +129,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
             <div className="flex items-center gap-3">
               <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                 <Sliders className="w-4 h-4 text-blue-400" />
-                Dışa Aktarma Kalitesi:
+                {t('exportQuality')}
               </span>
               <div className="flex items-center gap-1.5">
                 <button
@@ -128,7 +141,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                       : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  Standart (1080×1440)
+                  {t('qualityStandard')}
                 </button>
                 <button
                   type="button"
@@ -139,7 +152,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                       : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  Ultra HD 2x (2160×2880)
+                  {t('qualityUltra')}
                 </button>
               </div>
             </div>
@@ -153,8 +166,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
               <Archive className="w-4 h-4" />
               <span>
                 {isExportingZip
-                  ? `Paketleniyor... (${exportProgress?.current}/${exportProgress?.total})`
-                  : 'Tüm Sayfaları İndir (.ZIP)'}
+                  ? t('packagingZip', { current: exportProgress?.current ?? 0, total: exportProgress?.total ?? project.slides.length })
+                  : t('downloadZip')}
               </span>
             </button>
           </div>
@@ -162,7 +175,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
           {/* Sayfalar Galerisi */}
           <div>
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-              Üretilen Gönderi Sayfaları
+              {t('generatedPages')}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {project.slides.map((slide, idx) => (
@@ -172,67 +185,43 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                 >
                   {/* Sayfa Numarası Rozeti */}
                   <div className="absolute top-2 left-2 z-10 bg-slate-950/80 backdrop-blur-sm border border-slate-700 text-white text-[11px] font-bold px-2 py-0.5 rounded-md">
-                    Sayfa #{idx + 1}
+                    {t('slideCardBadge', { index: idx + 1 })}
                   </div>
 
                   {/* Resim Önizlemesi */}
                   <div className="relative aspect-[1080/1440] w-full bg-black flex items-center justify-center overflow-hidden">
-
                     {previews[idx] ? (
                       <img
                         src={previews[idx]}
-                        alt={`Sayfa ${idx + 1}`}
+                        alt={`Slide ${idx + 1}`}
                         className="w-full h-full object-contain"
                       />
                     ) : (
                       <div className="flex flex-col items-center gap-2 text-slate-500 text-xs">
                         <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
-                        <span>Render ediliyor...</span>
+                        <span>{t('processing')}</span>
                       </div>
                     )}
                   </div>
 
-                  {/* Alt İşlem Butonları */}
-                  <div className="p-3 bg-slate-900/90 border-t border-slate-800 flex items-center justify-between gap-2">
+                  {/* Alt Tekil İndirme Butonu */}
+                  <div className="p-3 bg-slate-950 border-t border-slate-800/80 flex items-center justify-between">
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {scaleFactor === 1 ? '1080×1440' : '2160×2880'}
+                    </span>
                     <button
-                      onClick={() => handleCopySingle(slide, idx)}
-                      className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 border transition-colors ${
-                        copiedIndex === idx
-                          ? 'bg-emerald-600/30 border-emerald-500 text-emerald-300'
-                          : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
-                      }`}
-                      title="Panoya Kopyala"
+                      onClick={() => handleDownloadSingle(idx)}
+                      className="flex items-center gap-1 px-3 py-1 rounded-lg bg-slate-800 hover:bg-red-600 text-slate-200 hover:text-white text-xs font-semibold transition-colors"
+                      title={t('downloadPng')}
                     >
-                      {copiedIndex === idx ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedIndex === idx ? 'Kopyalandı' : 'Kopyala'}</span>
-                    </button>
-
-                    <button
-                      onClick={() => handleDownloadSingle(slide, idx)}
-                      className="py-1.5 px-3 rounded-lg bg-red-600/20 hover:bg-red-600/40 border border-red-500/40 text-red-300 text-xs font-semibold flex items-center justify-center gap-1 transition-colors"
-                      title="PNG Olarak İndir"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>İndir</span>
+                      <Download className="w-3 h-3" />
+                      <span>{t('downloadPng')}</span>
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
-
-        {/* Modal Alt Kapatma Çubuğu */}
-        <div className="px-6 py-3.5 border-t border-slate-800 bg-slate-900/60 flex items-center justify-between">
-          <span className="text-xs text-slate-500">
-            Instagram için ideal formatta yüksek DPI PNG dosyaları hazırlanmıştır.
-          </span>
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors"
-          >
-            Kapat
-          </button>
         </div>
       </div>
     </div>

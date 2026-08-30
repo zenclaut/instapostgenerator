@@ -4,6 +4,11 @@ import confetti from 'canvas-confetti';
 import type { ProjectData, SlideData, AspectRatioType } from '../types/postTypes';
 import { renderSlideToCanvas } from './canvasRenderer';
 
+export interface ExportProgress {
+  current: number;
+  total: number;
+}
+
 /**
  * Tek bir slaytı Canvas üzerinden Blob/DataURL olarak üretir.
  */
@@ -52,19 +57,21 @@ export async function renderSlideToDataUrl(
   return canvas.toDataURL('image/jpeg', 0.85);
 }
 
+export const generateSlideDataUrl = renderSlideToDataUrl;
+
 /**
  * Tüm proje slaytlarını ZIP olarak paketleyip indirir.
  */
 export async function exportProjectAsZip(
   project: ProjectData,
   scaleFactor: number = 1,
-  onProgress?: (current: number, total: number) => void
+  onProgress?: (progress: ExportProgress) => void
 ): Promise<void> {
   const zip = new JSZip();
   const total = project.slides.length;
 
   for (let i = 0; i < total; i++) {
-    if (onProgress) onProgress(i + 1, total);
+    if (onProgress) onProgress({ current: i + 1, total });
     const slide = project.slides[i];
     const blob = await renderSlideToBlob(slide, i, total, project.aspectRatio, scaleFactor);
     const fileName = `${String(i + 1).padStart(2, '0')}_bgy_post.png`;

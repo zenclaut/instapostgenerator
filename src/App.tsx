@@ -4,10 +4,12 @@ import {
   Download, 
   Flame
 } from 'lucide-react';
+
 import type { ProjectData, SlideData, AspectRatioType, CustomTemplate, CategoryDefinition } from './types/postTypes';
 import { createNewProject, createNewSlide, initializeDatabase, SAMPLE_PROJECTS } from './db/postDatabase';
 import { PRESET_CATEGORIES, DEFAULT_CUSTOM_TEMPLATES } from './engine/categoryLoader';
 import { db } from './db/postDatabase';
+import { useLanguage } from './i18n/LanguageContext';
 import { SlideTabs } from './components/editor/SlideTabs';
 import { ImageUploader } from './components/editor/ImageUploader';
 import { LayerTemplateManager } from './components/editor/LayerTemplateManager';
@@ -17,6 +19,8 @@ import { CanvasPreview } from './components/preview/CanvasPreview';
 import { ExportModal } from './components/export/ExportModal';
 
 export function App() {
+  const { language, setLanguage, t } = useLanguage();
+
   // Aktif Proje State (Oturum boyunca RAM'de tutulur, geçmişe kaydedilmez)
   const [project, setProject] = useState<ProjectData>(() => SAMPLE_PROJECTS[0]);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
@@ -112,7 +116,7 @@ export function App() {
 
   // Yeni Boş Proje Başlat
   const handleCreateNewProject = () => {
-    if (confirm('Yeni bir proje başlatmak istiyor musunuz?')) {
+    if (confirm(t('confirmNewProject'))) {
       const newProj = createNewProject('Yeni BGY Gönderisi', currentSlide.categoryId);
       setProject(newProj);
       setActiveSlideIndex(0);
@@ -131,24 +135,54 @@ export function App() {
             </div>
             <div>
               <h1 className="text-base font-black text-white tracking-tight flex items-center gap-1.5">
-                <span>BGY POST GENERATOR</span>
+                <span>{t('appTitle')}</span>
                 <span className="text-[10px] uppercase font-bold bg-red-600/30 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full">
-                  Studio
+                  {t('studioBadge')}
                 </span>
               </h1>
             </div>
           </div>
 
-          {/* Hızlı İşlem Butonları */}
+          {/* Hızlı İşlem Butonları & Dil Seçici */}
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Dil Seçici (TR / EN) */}
+            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
+              <button
+                type="button"
+                onClick={() => setLanguage('tr')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold transition-all ${
+                  language === 'tr'
+                    ? 'bg-red-600 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="Türkçe"
+              >
+                <span>TR</span>
+                <span className="text-xs">🇹🇷</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLanguage('en')}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold transition-all ${
+                  language === 'en'
+                    ? 'bg-red-600 text-white shadow'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+                title="English"
+              >
+                <span>EN</span>
+                <span className="text-xs">🇬🇧</span>
+              </button>
+            </div>
+
             {/* Yeni Proje */}
             <button
               onClick={handleCreateNewProject}
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
-              title="Yeni Proje Başlat"
+              title={t('newProject')}
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>Yeni Proje</span>
+              <span>{t('newProject')}</span>
             </button>
 
             {/* Dışa Aktar & İndir (Ana Buton) */}
@@ -157,12 +191,11 @@ export function App() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold shadow-lg shadow-red-950/60 transition-all active:scale-95"
             >
               <Download className="w-4 h-4" />
-              <span>Dışa Aktar & İndir</span>
+              <span>{t('exportDownload')}</span>
             </button>
           </div>
         </div>
       </header>
-
 
       {/* Ana Çalışma Alanı (İki Kolonlu Stüdyo Arayüzü) */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">

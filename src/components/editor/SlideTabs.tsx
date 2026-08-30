@@ -1,6 +1,7 @@
 import React from 'react';
 import { Plus, Copy, Trash2, ChevronLeft, ChevronRight, Layers } from 'lucide-react';
 import type { SlideData } from '../../types/postTypes';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 interface SlideTabsProps {
   slides: SlideData[];
@@ -21,6 +22,7 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
   onDeleteSlide,
   onMoveSlide
 }) => {
+  const { t } = useLanguage();
   const currentSlide = slides[activeSlideIndex] || slides[0];
 
   return (
@@ -32,10 +34,10 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
           </div>
           <div>
             <h3 className="text-sm font-semibold text-white tracking-wide">
-              Carousel Sayfaları
+              {t('carouselPages')}
             </h3>
             <p className="text-xs text-slate-400">
-              {slides.length} Sayfa • Aktif: #{activeSlideIndex + 1}
+              {t('pagesCount', { count: slides.length, active: activeSlideIndex + 1 })}
             </p>
           </div>
         </div>
@@ -45,10 +47,10 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
           <button
             onClick={() => onAddSlide(currentSlide?.categoryId || 'haberler')}
             className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold shadow-md shadow-red-900/30 transition-all active:scale-95"
-            title="Yeni Sayfa Ekle"
+            title={t('addPage')}
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Sayfa Ekle</span>
+            <span>{t('addPage')}</span>
           </button>
         </div>
       </div>
@@ -87,12 +89,12 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                 {slide.imageUrl ? (
                   <img
                     src={slide.imageUrl}
-                    alt={`Sayfa ${index + 1}`}
+                    alt={`Slide ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="text-[10px] text-slate-400 flex flex-col items-center">
-                    <span>{activeLayersCount} Katman</span>
+                    <span>{t('pageThumbLayers', { count: activeLayersCount })}</span>
                   </div>
                 )}
               </div>
@@ -107,7 +109,7 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                         onMoveSlide(index, index - 1);
                       }}
                       className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white"
-                      title="Sola Taşı"
+                      title={t('moveLeft')}
                     >
                       <ChevronLeft className="w-3 h-3" />
                     </button>
@@ -119,7 +121,7 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                         onMoveSlide(index, index + 1);
                       }}
                       className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white"
-                      title="Sağa Taşı"
+                      title={t('moveRight')}
                     >
                       <ChevronRight className="w-3 h-3" />
                     </button>
@@ -133,7 +135,7 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                       onDuplicateSlide(index);
                     }}
                     className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-white"
-                    title="Sayfayı Çoğalt"
+                    title={t('duplicateSlide')}
                   >
                     <Copy className="w-3 h-3" />
                   </button>
@@ -144,7 +146,7 @@ export const SlideTabs: React.FC<SlideTabsProps> = ({
                         onDeleteSlide(index);
                       }}
                       className="p-1 hover:bg-red-950/60 rounded text-slate-500 hover:text-red-400"
-                      title="Sayfayı Sil"
+                      title={t('deleteSlide')}
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
