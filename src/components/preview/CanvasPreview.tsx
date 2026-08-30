@@ -96,7 +96,7 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             }`}
           >
             <Smartphone className="w-3.5 h-3.5" />
-            <span>4:5 Dikey (1080×1350)</span>
+            <span>Dikey (1080×1440)</span>
           </button>
 
           <button
@@ -140,17 +140,17 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
       </div>
 
       {/* Ana Canvas Önizleme Sahnesi */}
-      <div className="relative flex-1 min-h-[480px] max-h-[720px] rounded-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 border border-slate-800/80 shadow-2xl overflow-hidden flex items-center justify-center p-4">
+      <div className="relative flex-1 min-h-[460px] max-h-[680px] rounded-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 border border-slate-800/80 shadow-2xl flex items-center justify-center p-6 overflow-hidden">
         {/* Arka Plan Izgarası / Ambient Işık */}
         <div className="absolute inset-0 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:24px_24px] opacity-5 pointer-events-none" />
 
-        {/* Canlı HTML5 Canvas */}
-        <div className="relative shadow-2xl rounded-lg overflow-hidden border border-slate-800/60 max-h-full flex items-center justify-center">
+        {/* Canlı HTML5 Canvas (Kenarları kesilmeden tam görünür) */}
+        <div className="relative flex items-center justify-center max-w-full max-h-full">
           <canvas
             ref={canvasRef}
-            className="max-h-[640px] w-auto object-contain rounded-md shadow-2xl"
+            className="max-h-[580px] max-w-full w-auto h-auto object-contain shadow-2xl block"
             style={{
-              aspectRatio: aspectRatio === '4:5' ? '4/5' : '1/1'
+              aspectRatio: aspectRatio === '4:5' ? '1080/1440' : '1/1'
             }}
           />
 
@@ -169,7 +169,7 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             <button
               onClick={onPrevSlide}
               disabled={slideIndex === 0}
-              className={`absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/80 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
+              className={`absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/85 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
                 slideIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-80 hover:opacity-100 hover:scale-110'
               }`}
               title="Önceki Sayfa"
@@ -180,7 +180,7 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             <button
               onClick={onNextSlide}
               disabled={slideIndex === totalSlides - 1}
-              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/80 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
+              className={`absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/85 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
                 slideIndex === totalSlides - 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-80 hover:opacity-100 hover:scale-110'
               }`}
               title="Sonraki Sayfa"
@@ -189,13 +189,34 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             </button>
           </>
         )}
+      </div>
 
-        {/* Alt Sayfa Sayacı Bilgisi */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-slate-950/85 backdrop-blur-md border border-slate-800 text-slate-300 text-xs px-3.5 py-1.5 rounded-full shadow-lg font-mono flex items-center gap-2">
+      {/* Önizleme Altı Sayfa Sayacı ve Hızlı Geçiş Çubuğu (Resmin üstünü kapatmaz) */}
+      <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
+        <button
+          onClick={onPrevSlide}
+          disabled={slideIndex === 0}
+          className="flex items-center gap-1 hover:text-white disabled:opacity-30 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Önceki</span>
+        </button>
+
+        <div className="bg-slate-950 px-3 py-1 rounded-full border border-slate-800 font-mono text-xs flex items-center gap-2 text-slate-200 shadow-sm">
           <Sparkles className="w-3.5 h-3.5 text-red-400" />
           <span>Sayfa {slideIndex + 1} / {totalSlides}</span>
         </div>
+
+        <button
+          onClick={onNextSlide}
+          disabled={slideIndex === totalSlides - 1}
+          className="flex items-center gap-1 hover:text-white disabled:opacity-30 transition-colors"
+        >
+          <span>Sonraki</span>
+          <ChevronRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
 };
+

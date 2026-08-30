@@ -28,10 +28,12 @@ export interface TemplateLayer {
 export interface CategoryDefinition {
   id: string;              // 'haberler' | 'oyun' | custom
   name: string;            // 'Haberler' | 'Oyun'
-  folderPath: string;      // '/categories/haberler'
+  folderPath?: string;     // '/categories/haberler'
   fontInfo: CategoryFontInfo;
   defaultLayers: TemplateLayer[];
+  isCustom?: boolean;      // Kullanıcının kendi yarattığı kategori mi
 }
+
 
 export interface CustomTemplate {
   id: string;

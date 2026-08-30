@@ -3,14 +3,12 @@ import type { ProjectData, SlideData, CustomTemplate, CategoryDefinition } from 
 import { PRESET_CATEGORIES, DEFAULT_CUSTOM_TEMPLATES } from '../engine/categoryLoader';
 
 export class PostGeneratorDB extends Dexie {
-  projects!: Table<ProjectData, string>;
   customTemplates!: Table<CustomTemplate, string>;
   categories!: Table<CategoryDefinition, string>;
 
   constructor() {
-    super('BgyPostGeneratorDB_v2');
+    super('BgyPostGeneratorDB_v3');
     this.version(1).stores({
-      projects: 'id, title, updatedAt, createdAt',
       customTemplates: 'id, categoryId, name, updatedAt',
       categories: 'id, name'
     });
@@ -38,7 +36,7 @@ export const createNewSlide = (categoryId: string = 'haberler', index: number = 
     imageOffsetY: 0,
     imageBrightness: 100,
     imageContrast: 100,
-    showSwipeIndicator: index === 0, // İlk slaytta varsayılan açık
+    showSwipeIndicator: index === 0,
     swipeText: 'YANA KAYDIR ➔',
     swipeTextColor: '#FFFFFF',
     showPaginationDots: true,
@@ -165,10 +163,5 @@ export async function initializeDatabase() {
   const tmplCount = await db.customTemplates.count();
   if (tmplCount === 0) {
     await db.customTemplates.bulkAdd(DEFAULT_CUSTOM_TEMPLATES);
-  }
-
-  const projCount = await db.projects.count();
-  if (projCount === 0) {
-    await db.projects.bulkAdd(SAMPLE_PROJECTS);
   }
 }

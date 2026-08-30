@@ -124,8 +124,10 @@ export async function renderSlideToCanvas(
 ): Promise<void> {
   const { slide, slideIndex, totalSlides, aspectRatio, scaleFactor = 1 } = options;
 
+  // Instagram standart boyutları (1080x1440 Dikey veya 1080x1080 Kare)
   const baseWidth = 1080;
-  const baseHeight = aspectRatio === '4:5' ? 1350 : 1080;
+  const baseHeight = (aspectRatio === '4:5' || (aspectRatio as string) === '1080x1440') ? 1440 : 1080;
+
 
   const width = baseWidth * scaleFactor;
   const height = baseHeight * scaleFactor;
@@ -220,11 +222,12 @@ export async function renderSlideToCanvas(
           ctx.drawImage(layerImg, drawX, drawY, drawW, drawH);
         } else {
           const drawW = (layerImg.width * (baseWidth / 1080)) * scale;
-          const drawH = (layerImg.height * (baseHeight / 1350)) * scale;
+          const drawH = (layerImg.height * (baseHeight / 1440)) * scale;
           const drawX = ((baseWidth - drawW) / 2) + offX;
           const drawY = (baseHeight - drawH - 60) + offY;
           ctx.drawImage(layerImg, drawX, drawY, drawW, drawH);
         }
+
       }
 
 

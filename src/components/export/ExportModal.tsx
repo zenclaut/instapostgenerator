@@ -96,7 +96,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                 Dışa Aktarma & İndirme Galerisi
               </h2>
               <p className="text-xs text-slate-400">
-                {project.slides.length} Sayfalık Carousel • Instagram {project.aspectRatio === '4:5' ? '4:5 Dikey (1080x1350)' : '1:1 Kare (1080x1080)'}
+                {project.slides.length} Sayfalık Carousel • Instagram {project.aspectRatio === '4:5' ? 'Dikey (1080x1440)' : '1:1 Kare (1080x1080)'}
               </p>
             </div>
           </div>
@@ -128,7 +128,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                       : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  Standart Instagram (1080p)
+                  Standart (1080×1440)
                 </button>
                 <button
                   type="button"
@@ -139,7 +139,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                       : 'bg-slate-800 text-slate-400 hover:text-slate-200'
                   }`}
                 >
-                  Ultra HD 2x (2160p)
+                  Ultra HD 2x (2160×2880)
                 </button>
               </div>
             </div>
@@ -176,7 +176,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ project, isOpen, onClo
                   </div>
 
                   {/* Resim Önizlemesi */}
-                  <div className="relative aspect-[4/5] w-full bg-black flex items-center justify-center overflow-hidden">
+                  <div className="relative aspect-[1080/1440] w-full bg-black flex items-center justify-center overflow-hidden">
+
                     {previews[idx] ? (
                       <img
                         src={previews[idx]}

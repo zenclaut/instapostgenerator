@@ -1,40 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { 
   Plus, 
-  History, 
   Download, 
-  Save, 
-  Check, 
   Flame
 } from 'lucide-react';
-
 import type { ProjectData, SlideData, AspectRatioType, CustomTemplate, CategoryDefinition } from './types/postTypes';
-import { db, createNewProject, createNewSlide, initializeDatabase, SAMPLE_PROJECTS } from './db/postDatabase';
+import { createNewProject, createNewSlide, initializeDatabase, SAMPLE_PROJECTS } from './db/postDatabase';
 import { PRESET_CATEGORIES, DEFAULT_CUSTOM_TEMPLATES } from './engine/categoryLoader';
+import { db } from './db/postDatabase';
 import { SlideTabs } from './components/editor/SlideTabs';
-import { LayerTemplateManager } from './components/editor/LayerTemplateManager';
 import { ImageUploader } from './components/editor/ImageUploader';
+import { LayerTemplateManager } from './components/editor/LayerTemplateManager';
 import { RichTextEditor } from './components/editor/RichTextEditor';
 import { SlideSettings } from './components/editor/SlideSettings';
 import { CanvasPreview } from './components/preview/CanvasPreview';
 import { ExportModal } from './components/export/ExportModal';
-import { HistoryDrawer } from './components/history/HistoryDrawer';
 
 export function App() {
-  // Proje & Katman State
+  // Aktif Proje State (Oturum boyunca RAM'de tutulur, geçmişe kaydedilmez)
   const [project, setProject] = useState<ProjectData>(() => SAMPLE_PROJECTS[0]);
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
-  const [isSaved, setIsSaved] = useState<boolean>(true);
 
-  // Kategori ve Şablon State
+  // Kategori ve Şablon State (IndexedDB'de tutulur)
   const [categories, setCategories] = useState<CategoryDefinition[]>(PRESET_CATEGORIES);
   const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>(DEFAULT_CUSTOM_TEMPLATES);
 
-  // Modallar
+  // Dışa Aktarma Modalı
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState<boolean>(false);
 
-  // Veritabanını Başlat ve Şablonları Yükle
+  // Veritabanını Başlat ve Kategori/Şablonları Yükle
   const refreshCategoriesAndTemplates = useCallback(async () => {
     try {
       await initializeDatabase();
@@ -50,21 +44,6 @@ export function App() {
   useEffect(() => {
     refreshCategoriesAndTemplates();
   }, [refreshCategoriesAndTemplates]);
-
-  // Proje Değişikliklerini Otomatik Kaydet (Debounced Auto-save)
-  useEffect(() => {
-    setIsSaved(false);
-    const timer = setTimeout(async () => {
-      const updatedProject = {
-        ...project,
-        updatedAt: Date.now()
-      };
-      await db.projects.put(updatedProject);
-      setIsSaved(true);
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [project]);
 
   // Aktif Slide
   const currentSlide: SlideData = project.slides[activeSlideIndex] || project.slides[0];
@@ -133,18 +112,9 @@ export function App() {
 
   // Yeni Boş Proje Başlat
   const handleCreateNewProject = () => {
-    if (confirm('Yeni bir proje oluşturmak istiyor musunuz? Mevcut projeniz geçmişe kaydedildi.')) {
+    if (confirm('Yeni bir proje başlatmak istiyor musunuz?')) {
       const newProj = createNewProject('Yeni BGY Gönderisi', currentSlide.categoryId);
       setProject(newProj);
-      setActiveSlideIndex(0);
-    }
-  };
-
-  // Örnek Projeleri Yükle
-  const handleLoadSample = (sampleIndex: number) => {
-    const sample = SAMPLE_PROJECTS[sampleIndex];
-    if (sample) {
-      setProject(JSON.parse(JSON.stringify(sample)));
       setActiveSlideIndex(0);
     }
   };
@@ -160,78 +130,25 @@ export function App() {
               <Flame className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-base font-black text-white tracking-tight flex items-center gap-1.5">
-                  <span>BGY POST GENERATOR</span>
-                  <span className="text-[10px] uppercase font-bold bg-red-600/30 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full">
-                    Categories & Layer Studio
-                  </span>
-                </h1>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-slate-400">
-                <input
-                  type="text"
-                  value={project.title}
-                  onChange={(e) => setProject((prev) => ({ ...prev, title: e.target.value }))}
-                  className="bg-transparent hover:bg-slate-900 focus:bg-slate-900 border border-transparent focus:border-slate-700 rounded px-1.5 py-0.5 text-xs text-slate-200 font-medium transition-colors w-52 sm:w-72"
-                  placeholder="Proje Başlığı..."
-                />
-                <span className="text-slate-600">•</span>
-                <span className="flex items-center gap-1 text-[11px] text-slate-400">
-                  {isSaved ? (
-                    <>
-                      <Check className="w-3 h-3 text-emerald-400" />
-                      <span className="text-emerald-400 font-medium">Kayıtlı</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="w-3 h-3 text-amber-400 animate-pulse" />
-                      <span className="text-amber-400 font-medium">Kaydediliyor...</span>
-                    </>
-                  )}
+              <h1 className="text-base font-black text-white tracking-tight flex items-center gap-1.5">
+                <span>BGY POST GENERATOR</span>
+                <span className="text-[10px] uppercase font-bold bg-red-600/30 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full">
+                  Studio
                 </span>
-              </div>
+              </h1>
             </div>
           </div>
 
           {/* Hızlı İşlem Butonları */}
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Örnek Projeler */}
-            <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={() => handleLoadSample(0)}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-red-300 hover:text-white hover:bg-red-950/50 transition-colors"
-                title="Haberler Örnek Gönderisini Yükle"
-              >
-                Örnek: Haberler
-              </button>
-              <button
-                onClick={() => handleLoadSample(1)}
-                className="px-2.5 py-1.5 rounded-lg text-xs font-semibold text-purple-300 hover:text-white hover:bg-purple-950/50 transition-colors"
-                title="Oyun Örnek Gönderisini Yükle"
-              >
-                Örnek: Oyun
-              </button>
-            </div>
-
             {/* Yeni Proje */}
             <button
               onClick={handleCreateNewProject}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
               title="Yeni Proje Başlat"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Yeni Proje</span>
-            </button>
-
-            {/* Geçmiş İşler Butonu */}
-            <button
-              onClick={() => setIsHistoryOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
-              title="Geçmiş Gönderiler"
-            >
-              <History className="w-3.5 h-3.5 text-blue-400" />
-              <span>Geçmiş</span>
+              <span>Yeni Proje</span>
             </button>
 
             {/* Dışa Aktar & İndir (Ana Buton) */}
@@ -245,6 +162,7 @@ export function App() {
           </div>
         </div>
       </header>
+
 
       {/* Ana Çalışma Alanı (İki Kolonlu Stüdyo Arayüzü) */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -261,19 +179,19 @@ export function App() {
             onMoveSlide={handleMoveSlide}
           />
 
-          {/* 2. Kategori ve Sabit Resim Katmanları Yöneticisi (Tikler, Konumlandırma, Şablon Kaydetme) */}
+          {/* 2. Görsel Yükleme & Kadrajlama (Carousel Sayfalarının hemen altında!) */}
+          <ImageUploader
+            slide={currentSlide}
+            onChange={updateCurrentSlide}
+          />
+
+          {/* 3. Kategori Seçimi ve Katlanır Kartlar (Şablonlar & Görsel Katmanları) */}
           <LayerTemplateManager
             slide={currentSlide}
             categories={categories}
             customTemplates={customTemplates}
             onChange={updateCurrentSlide}
-            onRefreshTemplates={refreshCategoriesAndTemplates}
-          />
-
-          {/* 3. Görsel Yükleme & Kadrajlama */}
-          <ImageUploader
-            slide={currentSlide}
-            onChange={updateCurrentSlide}
+            onRefreshCategoriesAndTemplates={refreshCategoriesAndTemplates}
           />
 
           {/* 4. font.txt Entegre Zengin Metin Düzenleyici */}
@@ -283,7 +201,7 @@ export function App() {
             onChange={updateCurrentSlide}
           />
 
-          {/* 5. Yana Kaydır ve Sayfa Gösterge Noktaları */}
+          {/* 5. Sayfa Gösterge Noktaları */}
           <SlideSettings
             slide={currentSlide}
             onChange={updateCurrentSlide}
@@ -310,17 +228,6 @@ export function App() {
         project={project}
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-      />
-
-      {/* Geçmiş Gönderiler Veritabanı Çekmecesi */}
-      <HistoryDrawer
-        isOpen={isHistoryOpen}
-        onClose={() => setIsHistoryOpen(false)}
-        onLoadProject={(loaded) => {
-          setProject(loaded);
-          setActiveSlideIndex(0);
-        }}
-        currentProjectId={project.id}
       />
     </div>
   );

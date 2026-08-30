@@ -114,8 +114,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ slide, onChange })
             Fotoğrafınızı buraya sürükleyin veya <span className="text-red-400 underline">gözatın</span>
           </p>
           <p className="text-xs text-slate-500">
-            PNG, JPG, WEBP • Instagram 4:5 veya 1:1 formatında otomatik uyarlanır
+            PNG, JPG, WEBP • 1080×1440 veya 1:1 formatında otomatik uyarlanır
           </p>
+
         </div>
       ) : (
         <div className="space-y-3 pt-1">
