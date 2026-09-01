@@ -212,22 +212,7 @@ export function App() {
         />
       </div>
 
-      {/* MOBİL GÖRÜNÜM: Canlı Önizleme Her Zaman En Üstte Görünür */}
-      <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
-        <CanvasPreview
-          slide={currentSlide}
-          slideIndex={activeSlideIndex}
-          totalSlides={project.slides.length}
-          aspectRatio={project.aspectRatio}
-          categories={categories}
-          onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
-          onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
-          onChangeSlide={updateCurrentSlide}
-          projectTitle={project.title}
-        />
-      </div>
-
-      {/* Mobil Sekme Barı (Önizlemenin hemen altında) */}
+      {/* Mobil Sekme Barı (Önizlemenin hemen üstünde) */}
       <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
         <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs shadow-lg">
           <button
@@ -284,6 +269,19 @@ export function App() {
         </div>
       </div>
 
+      {/* MOBİL GÖRÜNÜM: Canlı Önizleme Sekmelerin Hemen Altında */}
+      <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
+        <CanvasPreview
+          slide={currentSlide}
+          slideIndex={activeSlideIndex}
+          totalSlides={project.slides.length}
+          aspectRatio={project.aspectRatio}
+          onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
+          onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
+          projectTitle={project.title}
+        />
+      </div>
+
       {/* Ana Çalışma Alanı (İki Kolonlu Stüdyo Arayüzü) */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* SOL KOLON: Editör ve Katman Paneli (lg:col-span-7) */}
@@ -332,10 +330,8 @@ export function App() {
             slideIndex={activeSlideIndex}
             totalSlides={project.slides.length}
             aspectRatio={project.aspectRatio}
-            categories={categories}
             onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
             onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
-            onChangeSlide={updateCurrentSlide}
             projectTitle={project.title}
           />
         </div>
