@@ -122,11 +122,11 @@ export async function renderSlideToCanvas(
   canvas: HTMLCanvasElement,
   options: RenderCanvasOptions
 ): Promise<void> {
-  const { slide, slideIndex, totalSlides, aspectRatio, scaleFactor = 1 } = options;
+  const { slide, slideIndex, totalSlides, scaleFactor = 1 } = options;
 
-  // Instagram standart boyutları (1080x1440 Dikey veya 1080x1080 Kare)
+  // Instagram standart boyutu (1080x1440 Dikey 4:5)
   const baseWidth = 1080;
-  const baseHeight = (aspectRatio === '4:5' || (aspectRatio as string) === '1080x1440') ? 1440 : 1080;
+  const baseHeight = 1440;
 
 
   const width = baseWidth * scaleFactor;
@@ -271,7 +271,7 @@ export async function renderSlideToCanvas(
   if (titleLines.length > 0) {
     ctx.save();
     ctx.font = `800 ${titleFontSize}px ${fontFam}`;
-    ctx.fillStyle = '#FFFFFF';
+    ctx.fillStyle = slide.titleColor || '#FFFFFF';
     ctx.textAlign = slide.textAlign || 'center';
     ctx.shadowColor = 'rgba(0,0,0,0.95)';
     ctx.shadowBlur = 10;

@@ -42,6 +42,7 @@ export const createNewSlide = (categoryId: string = 'haberler', index: number = 
     showPaginationDots: true,
     fontSize: 29,
     titleFontSize: 32,
+    titleColor: '#FFFFFF',
     fontFamily: 'Montserrat',
     textAlign: 'center',
     textColor: '#FFFFFF',

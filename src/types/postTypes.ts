@@ -1,4 +1,4 @@
-export type AspectRatioType = '4:5' | '1:1';
+export type AspectRatioType = '4:5';
 
 export interface CategoryColor {
   name: string;
@@ -74,6 +74,7 @@ export interface SlideData {
   // Tipografi, Hizalama & Konumlandırma
   fontSize: number;
   titleFontSize: number;
+  titleColor?: string;
   fontFamily: string;
   textAlign: 'left' | 'center' | 'right';
   textColor: string;

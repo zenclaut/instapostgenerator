@@ -250,17 +250,108 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ slide, categorie
       </div>
 
       {/* Üst Başlık (Opsiyonel) */}
-      <div>
-        <label className="text-[11px] text-slate-400 font-medium mb-1 block">
-          {t('titleOptional')}
-        </label>
-        <input
-          type="text"
-          value={slide.title}
-          onChange={(e) => onChange({ title: e.target.value })}
-          placeholder={t('titlePlaceholder')}
-          className="w-full px-3 py-2 rounded-xl glass-input text-xs font-bold text-slate-100 uppercase tracking-wider"
-        />
+      <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2.5">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <label className="text-[11px] text-slate-300 font-semibold flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
+            {t('titleOptional')}
+          </label>
+          
+          {/* Başlık Punto Boyutu */}
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] text-slate-400 font-medium">{t('titleFontSizeLabel')}:</span>
+            <div className="flex items-center gap-1">
+              <input
+                type="range"
+                min="18"
+                max="64"
+                step="1"
+                value={slide.titleFontSize || 32}
+                onChange={(e) => onChange({ titleFontSize: parseInt(e.target.value) || 32 })}
+                className="w-20 accent-red-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+              />
+              <span className="text-xs font-mono text-slate-300 w-7 text-right">
+                {slide.titleFontSize || 32}px
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Başlık Metin Girişi */}
+        <div className="relative">
+          <input
+            type="text"
+            value={slide.title}
+            onChange={(e) => onChange({ title: e.target.value })}
+            placeholder={t('titlePlaceholder')}
+            style={{ color: slide.titleColor || '#FFFFFF' }}
+            className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs font-black uppercase tracking-wider focus:outline-none focus:border-red-500 transition-colors"
+          />
+        </div>
+
+        {/* Başlık Renk Paleti */}
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-800/60">
+          {/* Kategori Renkleri */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-slate-400 font-medium">
+              {t('titleColorLabel')}:
+            </span>
+            <div className="flex items-center gap-1">
+              {currentCategory.fontInfo.colors.map((c) => {
+                const isSelected = (slide.titleColor || '#FFFFFF').toLowerCase() === c.color.toLowerCase();
+                return (
+                  <button
+                    key={c.color}
+                    type="button"
+                    onClick={() => onChange({ titleColor: c.color })}
+                    className={`w-5 h-5 rounded-md border shadow transition-all hover:scale-110 active:scale-95 ${
+                      isSelected ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 scale-105 border-white' : 'border-slate-700 opacity-85 hover:opacity-100'
+                    }`}
+                    style={{ backgroundColor: c.color }}
+                    title={`${c.name} (${c.color})`}
+                  />
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Klasik Renkler */}
+          <div className="flex items-center gap-1">
+            {CLASSIC_COLORS.filter(cc => !currentCategory.fontInfo.colors.some(catc => catc.color.toLowerCase() === cc.color.toLowerCase())).map((c) => {
+              const isSelected = (slide.titleColor || '#FFFFFF').toLowerCase() === c.color.toLowerCase();
+              return (
+                <button
+                  key={c.color}
+                  type="button"
+                  onClick={() => onChange({ titleColor: c.color })}
+                  className={`w-4 h-4 rounded border transition-all hover:scale-110 ${
+                    isSelected ? 'ring-2 ring-white ring-offset-1 ring-offset-slate-900 scale-110 border-white' : 'border-slate-700 opacity-70 hover:opacity-100'
+                  }`}
+                  style={{ backgroundColor: c.color }}
+                  title={c.name}
+                />
+              );
+            })}
+
+            {/* Özel Renk Seçici */}
+            <div className="flex items-center ml-1">
+              <label className="cursor-pointer relative flex items-center" title={t('customColor')}>
+                <input
+                  type="color"
+                  value={(slide.titleColor && slide.titleColor.startsWith('#') && slide.titleColor.length === 7) ? slide.titleColor : '#FFFFFF'}
+                  onChange={(e) => onChange({ titleColor: e.target.value })}
+                  className="w-5 h-5 opacity-0 absolute cursor-pointer"
+                />
+                <div 
+                  className="w-5 h-5 rounded border border-slate-700 flex items-center justify-center hover:scale-110 transition-transform"
+                  style={{ backgroundColor: slide.titleColor || '#FFFFFF' }}
+                >
+                  <Palette className="w-3 h-3 text-white drop-shadow" />
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Zengin Metin Giriş Alanı (ContentEditable) */}

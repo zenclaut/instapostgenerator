@@ -108,7 +108,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               <p className="text-xs text-slate-400">
                 {t('exportGallerySub', {
                   count: project.slides.length,
-                  ratio: project.aspectRatio === '4:5' ? t('portraitRatio') : t('squareRatio')
+                  ratio: t('portraitRatio')
                 })}
               </p>
             </div>

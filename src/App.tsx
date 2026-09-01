@@ -5,7 +5,7 @@ import {
   Flame
 } from 'lucide-react';
 
-import type { ProjectData, SlideData, AspectRatioType, CustomTemplate, CategoryDefinition } from './types/postTypes';
+import type { ProjectData, SlideData, CustomTemplate, CategoryDefinition } from './types/postTypes';
 import { createNewProject, createNewSlide, initializeDatabase, SAMPLE_PROJECTS } from './db/postDatabase';
 import { PRESET_CATEGORIES, DEFAULT_CUSTOM_TEMPLATES } from './engine/categoryLoader';
 import { db } from './db/postDatabase';
@@ -107,11 +107,6 @@ export function App() {
     newSlides.splice(toIndex, 0, moved);
     setProject((prev) => ({ ...prev, slides: newSlides }));
     setActiveSlideIndex(toIndex);
-  };
-
-  // En-Boy Oranı Değiştirme
-  const handleChangeAspectRatio = (aspectRatio: AspectRatioType) => {
-    setProject((prev) => ({ ...prev, aspectRatio }));
   };
 
   // Yeni Boş Proje Başlat
@@ -250,7 +245,6 @@ export function App() {
             aspectRatio={project.aspectRatio}
             onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
             onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
-            onChangeAspectRatio={handleChangeAspectRatio}
             projectTitle={project.title}
           />
         </div>

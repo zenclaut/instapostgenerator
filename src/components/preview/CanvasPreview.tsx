@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { 
   Smartphone, 
-  Square, 
   ChevronLeft, 
   ChevronRight, 
   Download, 
@@ -22,7 +21,6 @@ interface CanvasPreviewProps {
   aspectRatio: AspectRatioType;
   onPrevSlide: () => void;
   onNextSlide: () => void;
-  onChangeAspectRatio: (ratio: AspectRatioType) => void;
   projectTitle: string;
 }
 
@@ -33,7 +31,6 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
   aspectRatio,
   onPrevSlide,
   onNextSlide,
-  onChangeAspectRatio,
   projectTitle
 }) => {
   const { t } = useLanguage();
@@ -92,33 +89,10 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
     <div className="flex flex-col h-full space-y-3">
       {/* Üst Kontrol & Oran Çubuğu */}
       <div className="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2 shadow-lg">
-        {/* En Boy Oranı Seçici (1080x1440 Dikey vs 1:1 Kare) */}
-        <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-xl border border-slate-800">
-          <button
-            type="button"
-            onClick={() => onChangeAspectRatio('4:5')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              aspectRatio === '4:5'
-                ? 'bg-red-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>{t('portraitRatio')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onChangeAspectRatio('1:1')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              aspectRatio === '1:1'
-                ? 'bg-red-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Square className="w-3.5 h-3.5" />
-            <span>{t('squareRatio')}</span>
-          </button>
+        {/* Sabit Boyut Göstergesi (1080x1440 Dikey) */}
+        <div className="flex items-center gap-1.5 bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300">
+          <Smartphone className="w-3.5 h-3.5 text-red-500" />
+          <span>{t('portraitRatio')}</span>
         </div>
 
         {/* Hızlı Aksiyonlar */}
@@ -158,7 +132,7 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             ref={canvasRef}
             className="max-h-[580px] max-w-full w-auto h-auto object-contain shadow-2xl block"
             style={{
-              aspectRatio: aspectRatio === '4:5' ? '1080/1440' : '1/1'
+              aspectRatio: '1080/1440'
             }}
           />
 
