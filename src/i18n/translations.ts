@@ -130,7 +130,6 @@ export const translations = {
 
     // Preview Canvas
     portraitRatio: 'Dikey (1080×1440)',
-    squareRatio: '1:1 Kare (1080×1080)',
     copyToClipboard: 'Panoya Kopyala',
     copied: 'Kopyalandı!',
     downloadThisSlide: 'Bu Sayfayı İndir',
@@ -138,6 +137,14 @@ export const translations = {
     prev: 'Önceki',
     next: 'Sonraki',
     pageOf: 'Sayfa {current} / {total}',
+    quickTextEditor: 'Canlı Metin Editörü',
+    quickTextEditorSub: 'Önizleme üzerinde metni, rengi ve puntoyu düzenleyin',
+    openQuickEditor: 'Metni Düzenle',
+    closeQuickEditor: 'Editörü Kapat',
+    mobileTabPreviewText: 'Önizleme & Metin',
+    mobileTabImage: 'Görsel & Kadraj',
+    mobileTabLayers: 'Katmanlar & Şablonlar',
+    mobileTabSettings: 'Sayfalar & Ayarlar',
 
     // Export Modal
     exportGalleryTitle: 'Dışa Aktarma & İndirme Galerisi',
@@ -280,7 +287,6 @@ export const translations = {
 
     // Preview Canvas
     portraitRatio: 'Portrait (1080×1440)',
-    squareRatio: '1:1 Square (1080×1080)',
     copyToClipboard: 'Copy to Clipboard',
     copied: 'Copied!',
     downloadThisSlide: 'Download This Slide',
@@ -288,6 +294,14 @@ export const translations = {
     prev: 'Prev',
     next: 'Next',
     pageOf: 'Slide {current} / {total}',
+    quickTextEditor: 'Live Text Editor',
+    quickTextEditorSub: 'Edit text, color and font size directly on preview',
+    openQuickEditor: 'Edit Text',
+    closeQuickEditor: 'Close Editor',
+    mobileTabPreviewText: 'Preview & Text',
+    mobileTabImage: 'Image & Frame',
+    mobileTabLayers: 'Layers & Templates',
+    mobileTabSettings: 'Slides & Settings',
 
     // Export Modal
     exportGalleryTitle: 'Export & Download Gallery',
