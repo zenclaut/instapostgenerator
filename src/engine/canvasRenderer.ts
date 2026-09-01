@@ -122,7 +122,7 @@ export async function renderSlideToCanvas(
   canvas: HTMLCanvasElement,
   options: RenderCanvasOptions
 ): Promise<void> {
-  const { slide, slideIndex, totalSlides, scaleFactor = 1 } = options;
+  const { slide, scaleFactor = 1 } = options;
 
   // Instagram standart boyutu (1080x1440 Dikey 4:5)
   const baseWidth = 1080;
@@ -332,36 +332,6 @@ export async function renderSlideToCanvas(
 
     currentDrawY += lineHeight;
   }
-  ctx.restore();
-
-  // Sayfa Gösterge Noktaları (Pagination Dots)
-
-  if (slide.showPaginationDots && totalSlides > 1) {
-    ctx.save();
-    const dotRadius = 4;
-    const dotSpacing = 16;
-    const totalDotsWidth = (totalSlides - 1) * dotSpacing;
-    const startDotX = (baseWidth - totalDotsWidth) / 2;
-    const dotsY = baseHeight - 32;
-
-    for (let i = 0; i < totalSlides; i++) {
-      const dotX = startDotX + (i * dotSpacing);
-      ctx.beginPath();
-      ctx.arc(dotX, dotsY, dotRadius, 0, Math.PI * 2);
-
-      if (i === slideIndex) {
-        ctx.fillStyle = '#FFFFFF';
-        ctx.shadowColor = 'rgba(255,255,255,0.7)';
-        ctx.shadowBlur = 6;
-      } else {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-        ctx.shadowBlur = 0;
-      }
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
   ctx.restore();
 }
 

@@ -5,8 +5,7 @@ import {
   Flame,
   Type,
   Image as ImageIcon,
-  Layers as LayersIcon,
-  Sliders
+  Layers as LayersIcon
 } from 'lucide-react';
 
 import type { ProjectData, SlideData, CustomTemplate, CategoryDefinition } from './types/postTypes';
@@ -18,7 +17,6 @@ import { SlideTabs } from './components/editor/SlideTabs';
 import { ImageUploader } from './components/editor/ImageUploader';
 import { LayerTemplateManager } from './components/editor/LayerTemplateManager';
 import { RichTextEditor } from './components/editor/RichTextEditor';
-import { SlideSettings } from './components/editor/SlideSettings';
 import { CanvasPreview } from './components/preview/CanvasPreview';
 import { ExportModal } from './components/export/ExportModal';
 
@@ -33,8 +31,8 @@ export function App() {
   const [categories, setCategories] = useState<CategoryDefinition[]>(PRESET_CATEGORIES);
   const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>(DEFAULT_CUSTOM_TEMPLATES);
 
-  // Mobil Sekme State ('text' | 'image' | 'layers' | 'settings')
-  const [mobileTab, setMobileTab] = useState<'text' | 'image' | 'layers' | 'settings'>('text');
+  // Mobil Sekme State ('text' | 'image' | 'layers')
+  const [mobileTab, setMobileTab] = useState<'text' | 'image' | 'layers'>('text');
 
   // Dışa Aktarma Modalı
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
@@ -212,9 +210,9 @@ export function App() {
         />
       </div>
 
-      {/* Mobil Sekme Barı (Önizlemenin hemen üstünde) */}
+      {/* Mobil Sekme Barı (Önizlemenin hemen üstünde - 3 Sekme) */}
       <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
-        <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs shadow-lg">
+        <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs shadow-lg">
           <button
             type="button"
             onClick={() => setMobileTab('text')}
@@ -252,19 +250,6 @@ export function App() {
           >
             <LayersIcon className="w-3.5 h-3.5" />
             <span className="truncate">{t('mobileTabLayers')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMobileTab('settings')}
-            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[11px] ${
-              mobileTab === 'settings'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span className="truncate">{t('mobileTabSettings')}</span>
           </button>
         </div>
       </div>
@@ -311,14 +296,6 @@ export function App() {
               customTemplates={customTemplates}
               onChange={updateCurrentSlide}
               onRefreshCategoriesAndTemplates={refreshCategoriesAndTemplates}
-            />
-          </div>
-
-          {/* 4. Sayfa Gösterge Noktaları & Ayarlar */}
-          <div className={`${mobileTab === 'settings' ? 'block' : 'hidden'} lg:block`}>
-            <SlideSettings
-              slide={currentSlide}
-              onChange={updateCurrentSlide}
             />
           </div>
         </div>

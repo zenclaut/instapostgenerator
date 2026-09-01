@@ -121,13 +121,6 @@ export const translations = {
     textOffsetXLabel: 'Yatay Konum (X Offset)',
     resetTextPosition: 'Metin Konumunu Sıfırla',
 
-    // Slide Settings
-
-    slideSettingsTitle: 'Sayfa Göstergeleri',
-    slideSettingsSub: 'Carousel sayfa noktalarının görünümü',
-    paginationDots: 'Sayfa Gösterge Noktaları (Dots)',
-    paginationDotsSub: 'Alt ortadaki 1/2, 2/2 gibi sayfa noktalarını açın/kapatın',
-
     // Preview Canvas
     portraitRatio: 'Dikey (1080×1440)',
     copyToClipboard: 'Panoya Kopyala',
@@ -144,7 +137,6 @@ export const translations = {
     mobileTabText: 'Metin',
     mobileTabImage: 'Görsel',
     mobileTabLayers: 'Katmanlar',
-    mobileTabSettings: 'Ayarlar',
 
     // Export Modal
     exportGalleryTitle: 'Dışa Aktarma & İndirme Galerisi',
@@ -278,13 +270,6 @@ export const translations = {
     textOffsetXLabel: 'Horizontal Position (X Offset)',
     resetTextPosition: 'Reset Text Position',
 
-    // Slide Settings
-
-    slideSettingsTitle: 'Slide Indicators',
-    slideSettingsSub: 'Carousel pagination dots display',
-    paginationDots: 'Pagination Dots',
-    paginationDotsSub: 'Toggle bottom slide indicators (e.g. 1/2, 2/2)',
-
     // Preview Canvas
     portraitRatio: 'Portrait (1080×1440)',
     copyToClipboard: 'Copy to Clipboard',
@@ -301,7 +286,6 @@ export const translations = {
     mobileTabText: 'Text',
     mobileTabImage: 'Image',
     mobileTabLayers: 'Layers',
-    mobileTabSettings: 'Settings',
 
     // Export Modal
     exportGalleryTitle: 'Export & Download Gallery',
