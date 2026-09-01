@@ -6,9 +6,9 @@ export const translations = {
     appTitle: 'BGY POST GENERATOR',
     studioBadge: 'Studio',
     newProject: 'Yeni Proje',
-    exportDownload: 'Dışa Aktar & İndir',
+    exportDownload: 'İndir',
     confirmNewProject: 'Yeni bir proje başlatmak istiyor musunuz? Mevcut değişiklikler sıfırlanacaktır.',
-    
+
     // SlideTabs (Carousel)
     carouselPages: 'Carousel Sayfaları',
     pagesCount: '{count} Sayfa • Aktif: #{active}',
@@ -162,10 +162,10 @@ export const translations = {
     // Header
     appTitle: 'BGY POST GENERATOR',
     studioBadge: 'Studio',
-    newProject: 'New Project',
-    exportDownload: 'Export & Download',
+    newProject: '+Project',
+    exportDownload: 'Download',
     confirmNewProject: 'Are you sure you want to start a new project? Current unsaved state will be reset.',
-    
+
     // SlideTabs (Carousel)
     carouselPages: 'Carousel Slides',
     pagesCount: '{count} Slides • Active: #{active}',

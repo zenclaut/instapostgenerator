@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { 
-  Smartphone, 
   ChevronLeft, 
   ChevronRight, 
   Download, 
@@ -154,25 +153,47 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
     }
   };
 
+  // Swipe (Dokunarak Sayfa Değiştirme) İşleyicileri
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+    setTouchStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || touchStartY === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const diffX = touchStartX - touchEndX;
+    const diffY = touchStartY - touchEndY;
+
+    // Yatay kaydırma dikeyden daha baskınsa ve min 45px eşiği geçildiyse
+    if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 45) {
+      if (diffX > 0 && slideIndex < totalSlides - 1) {
+        onNextSlide();
+      } else if (diffX < 0 && slideIndex > 0) {
+        onPrevSlide();
+      }
+    }
+    setTouchStartX(null);
+    setTouchStartY(null);
+  };
+
   return (
     <div className="flex flex-col h-full space-y-3">
       {/* Üst Kontrol Çubuğu */}
       <div className="glass-panel rounded-2xl p-3 border border-slate-800 flex items-center justify-between gap-2 shadow-lg">
-        {/* Sabit Boyut Göstergesi (1080x1440 Dikey) */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-1.5 bg-slate-900/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-xs font-semibold text-slate-300">
-            <Smartphone className="w-3.5 h-3.5 text-red-500" />
-            <span>{t('portraitRatio')}</span>
-          </div>
-
-          {/* Canlı Editörü Aç / Kapat Butonu */}
+        {/* Canlı Editörü Aç / Kapat Butonu */}
+        <div>
           {onChangeSlide && (
             <button
               type="button"
               onClick={() => setIsLiveEditorOpen(!isLiveEditorOpen)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                 isLiveEditorOpen 
-                  ? 'bg-red-600/20 border-red-500/40 text-red-300' 
+                  ? 'bg-red-600/20 border-red-500/40 text-red-300 shadow' 
                   : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200'
               }`}
               title={t('quickTextEditorSub')}
@@ -209,16 +230,28 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
         </div>
       </div>
 
-      {/* Ana Canvas Önizleme Sahnesi */}
-      <div className="relative flex-1 min-h-[440px] max-h-[640px] rounded-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 border border-slate-800/80 shadow-2xl flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+      {/* Ana Canvas Önizleme Sahnesi (Dokunmatik Swipe & Ok Butonları) */}
+      <div 
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        className="relative flex-1 min-h-[440px] max-h-[640px] rounded-2xl bg-gradient-to-b from-slate-950/90 to-slate-900 border border-slate-800/80 shadow-2xl flex items-center justify-center p-4 sm:p-6 overflow-hidden select-none cursor-grab active:cursor-grabbing"
+      >
         {/* Arka Plan Izgarası / Ambient Işık */}
         <div className="absolute inset-0 bg-[radial-gradient(#ef4444_1px,transparent_1px)] [background-size:24px_24px] opacity-5 pointer-events-none" />
+
+        {/* Sayfa Göstergesi (Sol Üstte Yüzen Rozet) */}
+        {totalSlides > 1 && (
+          <div className="absolute top-3 left-3 z-10 bg-slate-950/85 backdrop-blur-md border border-slate-800 text-[11px] font-mono font-bold text-slate-300 px-2.5 py-1 rounded-full shadow-lg pointer-events-none flex items-center gap-1.5">
+            <Sparkles className="w-3 h-3 text-red-400" />
+            <span>{slideIndex + 1} / {totalSlides}</span>
+          </div>
+        )}
 
         {/* Canlı HTML5 Canvas (Kenarları kesilmeden tam görünür) */}
         <div className="relative flex items-center justify-center max-w-full max-h-full">
           <canvas
             ref={canvasRef}
-            className="max-h-[520px] max-w-full w-auto h-auto object-contain shadow-2xl block"
+            className="max-h-[520px] max-w-full w-auto h-auto object-contain shadow-2xl block pointer-events-none"
             style={{
               aspectRatio: '1080/1440'
             }}
@@ -226,21 +259,25 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
 
           {/* Render Oluyor Göstergesi */}
           {isRendering && (
-            <div className="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-700 text-[11px] text-slate-300 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg">
+            <div className="absolute top-3 right-3 z-10 bg-slate-950/80 backdrop-blur-md border border-slate-700 text-[11px] text-slate-300 px-2.5 py-1 rounded-full flex items-center gap-1.5 shadow-lg pointer-events-none">
               <div className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
               <span>{t('processing')}</span>
             </div>
           )}
         </div>
 
-        {/* Carousel Sol/Sağ Navigasyon Butonları */}
+        {/* Carousel Sol/Sağ Navigasyon Ok Butonları */}
         {totalSlides > 1 && (
           <>
             <button
-              onClick={onPrevSlide}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPrevSlide();
+              }}
               disabled={slideIndex === 0}
-              className={`absolute left-2.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/85 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
-                slideIndex === 0 ? 'opacity-30 cursor-not-allowed' : 'opacity-80 hover:opacity-100 hover:scale-110'
+              className={`absolute left-2.5 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-slate-950/90 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-2xl transition-all active:scale-95 ${
+                slideIndex === 0 ? 'opacity-20 cursor-not-allowed pointer-events-none' : 'opacity-85 hover:opacity-100 hover:scale-110'
               }`}
               title={t('prev')}
             >
@@ -248,10 +285,14 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             </button>
 
             <button
-              onClick={onNextSlide}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNextSlide();
+              }}
               disabled={slideIndex === totalSlides - 1}
-              className={`absolute right-2.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-slate-950/85 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-xl transition-all ${
-                slideIndex === totalSlides - 1 ? 'opacity-30 cursor-not-allowed' : 'opacity-80 hover:opacity-100 hover:scale-110'
+              className={`absolute right-2.5 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-slate-950/90 hover:bg-red-600 text-white backdrop-blur-md border border-slate-700 hover:border-red-500 shadow-2xl transition-all active:scale-95 ${
+                slideIndex === totalSlides - 1 ? 'opacity-20 cursor-not-allowed pointer-events-none' : 'opacity-85 hover:opacity-100 hover:scale-110'
               }`}
               title={t('next')}
             >
@@ -259,32 +300,6 @@ export const CanvasPreview: React.FC<CanvasPreviewProps> = ({
             </button>
           </>
         )}
-      </div>
-
-      {/* Önizleme Altı Sayfa Sayacı ve Hızlı Geçiş Çubuğu */}
-      <div className="flex items-center justify-between px-4 py-2 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
-        <button
-          onClick={onPrevSlide}
-          disabled={slideIndex === 0}
-          className="flex items-center gap-1 hover:text-white disabled:opacity-30 transition-colors"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          <span>{t('prev')}</span>
-        </button>
-
-        <div className="bg-slate-950 px-3 py-1 rounded-full border border-slate-800 font-mono text-xs flex items-center gap-2 text-slate-200 shadow-sm">
-          <Sparkles className="w-3.5 h-3.5 text-red-400" />
-          <span>{t('pageOf', { current: slideIndex + 1, total: totalSlides })}</span>
-        </div>
-
-        <button
-          onClick={onNextSlide}
-          disabled={slideIndex === totalSlides - 1}
-          className="flex items-center gap-1 hover:text-white disabled:opacity-30 transition-colors"
-        >
-          <span>{t('next')}</span>
-          <ChevronRight className="w-4 h-4" />
-        </button>
       </div>
 
       {/* CANLI METİN EDİTÖRÜ (Önizleme Üzerinde Hızlı Düzenleme) */}
