@@ -141,10 +141,10 @@ export const translations = {
     quickTextEditorSub: 'Önizleme üzerinde metni, rengi ve puntoyu düzenleyin',
     openQuickEditor: 'Metni Düzenle',
     closeQuickEditor: 'Editörü Kapat',
-    mobileTabPreviewText: 'Önizleme & Metin',
-    mobileTabImage: 'Görsel & Kadraj',
-    mobileTabLayers: 'Katmanlar & Şablonlar',
-    mobileTabSettings: 'Sayfalar & Ayarlar',
+    mobileTabText: 'Metin',
+    mobileTabImage: 'Görsel',
+    mobileTabLayers: 'Katmanlar',
+    mobileTabSettings: 'Ayarlar',
 
     // Export Modal
     exportGalleryTitle: 'Dışa Aktarma & İndirme Galerisi',
@@ -298,10 +298,10 @@ export const translations = {
     quickTextEditorSub: 'Edit text, color and font size directly on preview',
     openQuickEditor: 'Edit Text',
     closeQuickEditor: 'Close Editor',
-    mobileTabPreviewText: 'Preview & Text',
-    mobileTabImage: 'Image & Frame',
-    mobileTabLayers: 'Layers & Templates',
-    mobileTabSettings: 'Slides & Settings',
+    mobileTabText: 'Text',
+    mobileTabImage: 'Image',
+    mobileTabLayers: 'Layers',
+    mobileTabSettings: 'Settings',
 
     // Export Modal
     exportGalleryTitle: 'Export & Download Gallery',

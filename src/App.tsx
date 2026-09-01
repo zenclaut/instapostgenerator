@@ -3,7 +3,7 @@ import {
   Plus, 
   Download, 
   Flame,
-  Smartphone,
+  Type,
   Image as ImageIcon,
   Layers as LayersIcon,
   Sliders
@@ -33,8 +33,8 @@ export function App() {
   const [categories, setCategories] = useState<CategoryDefinition[]>(PRESET_CATEGORIES);
   const [customTemplates, setCustomTemplates] = useState<CustomTemplate[]>(DEFAULT_CUSTOM_TEMPLATES);
 
-  // Mobil Sekme State ('preview' | 'image' | 'layers' | 'settings')
-  const [mobileTab, setMobileTab] = useState<'preview' | 'image' | 'layers' | 'settings'>('preview');
+  // Mobil Sekme State ('text' | 'image' | 'layers' | 'settings')
+  const [mobileTab, setMobileTab] = useState<'text' | 'image' | 'layers' | 'settings'>('text');
 
   // Dışa Aktarma Modalı
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
@@ -199,63 +199,6 @@ export function App() {
         </div>
       </header>
 
-      {/* Mobil Sekme Barı (lg:hidden) */}
-      <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-3">
-        <div className="grid grid-cols-4 gap-1 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs shadow-lg">
-          <button
-            type="button"
-            onClick={() => setMobileTab('preview')}
-            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[10px] ${
-              mobileTab === 'preview'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span className="truncate">{t('mobileTabPreviewText')}</span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => setMobileTab('image')}
-            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[10px] ${
-              mobileTab === 'image'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <ImageIcon className="w-3.5 h-3.5" />
-            <span className="truncate">{t('mobileTabImage')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMobileTab('layers')}
-            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[10px] ${
-              mobileTab === 'layers'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <LayersIcon className="w-3.5 h-3.5" />
-            <span className="truncate">{t('mobileTabLayers')}</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMobileTab('settings')}
-            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[10px] ${
-              mobileTab === 'settings'
-                ? 'bg-red-600 text-white shadow-md'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span className="truncate">{t('mobileTabSettings')}</span>
-          </button>
-        </div>
-      </div>
-
       {/* Carousel Sayfa Sekmeleri (Her zaman üstte erişilebilir) */}
       <div className="max-w-7xl w-full mx-auto px-4 lg:px-6 pt-3">
         <SlideTabs
@@ -269,11 +212,92 @@ export function App() {
         />
       </div>
 
+      {/* MOBİL GÖRÜNÜM: Canlı Önizleme Her Zaman En Üstte Görünür */}
+      <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
+        <CanvasPreview
+          slide={currentSlide}
+          slideIndex={activeSlideIndex}
+          totalSlides={project.slides.length}
+          aspectRatio={project.aspectRatio}
+          categories={categories}
+          onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
+          onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
+          onChangeSlide={updateCurrentSlide}
+          projectTitle={project.title}
+        />
+      </div>
+
+      {/* Mobil Sekme Barı (Önizlemenin hemen altında) */}
+      <div className="lg:hidden max-w-7xl w-full mx-auto px-4 pt-2">
+        <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-900/90 rounded-2xl border border-slate-800 text-xs shadow-lg">
+          <button
+            type="button"
+            onClick={() => setMobileTab('text')}
+            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[11px] ${
+              mobileTab === 'text'
+                ? 'bg-red-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Type className="w-3.5 h-3.5" />
+            <span className="truncate">{t('mobileTabText')}</span>
+          </button>
+          
+          <button
+            type="button"
+            onClick={() => setMobileTab('image')}
+            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[11px] ${
+              mobileTab === 'image'
+                ? 'bg-red-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span className="truncate">{t('mobileTabImage')}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileTab('layers')}
+            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[11px] ${
+              mobileTab === 'layers'
+                ? 'bg-red-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <LayersIcon className="w-3.5 h-3.5" />
+            <span className="truncate">{t('mobileTabLayers')}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileTab('settings')}
+            className={`flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-xl font-bold transition-all text-[11px] ${
+              mobileTab === 'settings'
+                ? 'bg-red-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span className="truncate">{t('mobileTabSettings')}</span>
+          </button>
+        </div>
+      </div>
+
       {/* Ana Çalışma Alanı (İki Kolonlu Stüdyo Arayüzü) */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* SOL KOLON: Editör ve Katman Paneli (lg:col-span-7) */}
         <div className="lg:col-span-7 space-y-4">
-          {/* 1. Görsel Yükleme & Kadrajlama */}
+          {/* 1. font.txt Entegre Zengin Metin Düzenleyici */}
+          <div className={`${mobileTab === 'text' ? 'block' : 'hidden'} lg:block`}>
+            <RichTextEditor
+              slide={currentSlide}
+              categories={categories}
+              onChange={updateCurrentSlide}
+            />
+          </div>
+
+          {/* 2. Görsel Yükleme & Kadrajlama */}
           <div className={`${mobileTab === 'image' ? 'block' : 'hidden'} lg:block`}>
             <ImageUploader
               slide={currentSlide}
@@ -281,7 +305,7 @@ export function App() {
             />
           </div>
 
-          {/* 2. Kategori Seçimi ve Katlanır Kartlar (Şablonlar & Görsel Katmanları) */}
+          {/* 3. Kategori Seçimi ve Katlanır Kartlar (Şablonlar & Görsel Katmanları) */}
           <div className={`${mobileTab === 'layers' ? 'block' : 'hidden'} lg:block`}>
             <LayerTemplateManager
               slide={currentSlide}
@@ -292,35 +316,11 @@ export function App() {
             />
           </div>
 
-          {/* 3. font.txt Entegre Zengin Metin Düzenleyici */}
-          <div className={`${mobileTab === 'settings' ? 'block' : 'hidden'} lg:block`}>
-            <RichTextEditor
-              slide={currentSlide}
-              categories={categories}
-              onChange={updateCurrentSlide}
-            />
-          </div>
-
-          {/* 4. Sayfa Gösterge Noktaları */}
+          {/* 4. Sayfa Gösterge Noktaları & Ayarlar */}
           <div className={`${mobileTab === 'settings' ? 'block' : 'hidden'} lg:block`}>
             <SlideSettings
               slide={currentSlide}
               onChange={updateCurrentSlide}
-            />
-          </div>
-
-          {/* Mobilde 'preview' seçiliyken CanvasPreview'ın burada görünmesi */}
-          <div className={`lg:hidden ${mobileTab === 'preview' ? 'block' : 'hidden'}`}>
-            <CanvasPreview
-              slide={currentSlide}
-              slideIndex={activeSlideIndex}
-              totalSlides={project.slides.length}
-              aspectRatio={project.aspectRatio}
-              categories={categories}
-              onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
-              onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
-              onChangeSlide={updateCurrentSlide}
-              projectTitle={project.title}
             />
           </div>
         </div>
