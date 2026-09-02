@@ -45,6 +45,24 @@ export interface CustomTemplate {
   isPreset?: boolean;
 }
 
+export interface ImageOverlay {
+  id: string;
+  name?: string;
+  imageUrl: string;
+  x: number;               // Canvas coordinates (0..1080)
+  y: number;               // Canvas coordinates (0..1440)
+  width: number;           // Width in canvas pixels
+  height: number;          // Height in canvas pixels
+  rotation?: number;       // Rotation in degrees (-180..180, default 0)
+  borderRadius?: number;   // Border radius in px (0 to max for circle)
+  opacity?: number;        // Opacity (0..100%, default 100)
+  zIndex?: number;         // Stack order
+  borderWidth?: number;    // Border width in px
+  borderColor?: string;    // Border color
+  shadow?: boolean;        // Drop shadow toggle
+  aspectRatioLocked?: boolean;
+}
+
 export interface SlideData {
   id: string;
   categoryId: string;         // 'haberler' | 'oyun' vb.
@@ -62,6 +80,9 @@ export interface SlideData {
   imageOffsetY: number;
   imageBrightness: number;
   imageContrast: number;
+
+  // Fotoğraf Üstü Ek Fotoğraflar / Çıkartmalar
+  overlays?: ImageOverlay[];
   
   // Yana Kaydır Rozeti (Fotoğraf bazında seçim)
   showSwipeIndicator: boolean;

@@ -88,6 +88,41 @@ export function parseHtmlToSpans(html: string, defaultColor: string = '#FFFFFF')
   return result;
 }
 
+/**
+ * Canvas üzerinde köşe yuvarlama (Border Radius) ile dikdörtgen yolu çizer.
+ * Hem modern Canvas roundRect API'sini hem de güvenli bezier/quadratic fallback'ini destekler.
+ */
+export function drawRoundedRectPath(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+): void {
+  const maxR = Math.min(Math.abs(width), Math.abs(height)) / 2;
+  const r = Math.max(0, Math.min(radius, maxR));
+
+  ctx.beginPath();
+  if (r <= 0) {
+    ctx.rect(x, y, width, height);
+  } else if (typeof (ctx as any).roundRect === 'function') {
+    (ctx as any).roundRect(x, y, width, height, r);
+  } else {
+    // Fallback rounded rect path
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+  }
+  ctx.closePath();
+}
+
 const imageCache = new Map<string, HTMLImageElement>();
 export function preloadImage(url: string): Promise<HTMLImageElement> {
   if (imageCache.has(url)) {
@@ -234,6 +269,70 @@ export async function renderSlideToCanvas(
       ctx.restore();
     } catch (err) {
       console.warn(`Katman resmi yüklenemedi: ${layer.imageUrl}`, err);
+    }
+  }
+
+  // 3.5. Fotoğraf Üstüne Eklenen Fotoğraflar / Çıkartmalar (Overlays)
+  if (slide.overlays && slide.overlays.length > 0) {
+    const sortedOverlays = [...slide.overlays].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+
+    for (const overlay of sortedOverlays) {
+      if (!overlay.imageUrl) continue;
+      try {
+        const overlayImg = await preloadImage(overlay.imageUrl);
+        ctx.save();
+
+        const op = Math.max(0, Math.min(100, overlay.opacity ?? 100)) / 100;
+        ctx.globalAlpha = op;
+
+        const w = overlay.width || 300;
+        const h = overlay.height || 300;
+        const x = overlay.x ?? (baseWidth - w) / 2;
+        const y = overlay.y ?? (baseHeight - h) / 2;
+        const rot = overlay.rotation || 0;
+        const rad = (rot * Math.PI) / 180;
+        const radius = overlay.borderRadius ?? 0;
+
+        // Merkez etrafında döndürme ve konumlandırma
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+
+        ctx.translate(cx, cy);
+        if (rot !== 0) {
+          ctx.rotate(rad);
+        }
+
+        // Gölge efekti (Varsayılan olarak hafif gölge veya seçilmişse belirgin gölge)
+        ctx.save();
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+        ctx.shadowBlur = overlay.shadow ? 28 : 16;
+        ctx.shadowOffsetY = overlay.shadow ? 8 : 4;
+        drawRoundedRectPath(ctx, -w / 2, -h / 2, w, h, radius);
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.01)';
+        ctx.fill();
+        ctx.restore();
+
+        // Köşe Yuvarlama ile Kırpma (Clip)
+        ctx.save();
+        drawRoundedRectPath(ctx, -w / 2, -h / 2, w, h, radius);
+        ctx.clip();
+        ctx.drawImage(overlayImg, -w / 2, -h / 2, w, h);
+        ctx.restore();
+
+        // İsteğe bağlı Çerçeve (Border)
+        if (overlay.borderWidth && overlay.borderWidth > 0 && overlay.borderColor) {
+          ctx.save();
+          drawRoundedRectPath(ctx, -w / 2, -h / 2, w, h, radius);
+          ctx.lineWidth = overlay.borderWidth;
+          ctx.strokeStyle = overlay.borderColor;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ctx.restore();
+      } catch (err) {
+        console.warn(`Overlay resmi yüklenemedi: ${overlay.imageUrl}`, err);
+      }
     }
   }
 

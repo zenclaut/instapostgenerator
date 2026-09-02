@@ -5,16 +5,20 @@ import {
   Flame,
   Type,
   Image as ImageIcon,
-  Layers as LayersIcon
+  Layers as LayersIcon,
+  Undo2,
+  Redo2
 } from 'lucide-react';
 
-import type { ProjectData, SlideData, CustomTemplate, CategoryDefinition } from './types/postTypes';
+import type { SlideData, CustomTemplate, CategoryDefinition } from './types/postTypes';
 import { createNewProject, createNewSlide, initializeDatabase, SAMPLE_PROJECTS } from './db/postDatabase';
 import { PRESET_CATEGORIES, DEFAULT_CUSTOM_TEMPLATES } from './engine/categoryLoader';
 import { db } from './db/postDatabase';
 import { useLanguage } from './i18n/LanguageContext';
+import { useHistory } from './hooks/useHistory';
 import { SlideTabs } from './components/editor/SlideTabs';
 import { ImageUploader } from './components/editor/ImageUploader';
+import { ImageOverlayManager } from './components/editor/ImageOverlayManager';
 import { LayerTemplateManager } from './components/editor/LayerTemplateManager';
 import { RichTextEditor } from './components/editor/RichTextEditor';
 import { CanvasPreview } from './components/preview/CanvasPreview';
@@ -23,9 +27,13 @@ import { ExportModal } from './components/export/ExportModal';
 export function App() {
   const { language, setLanguage, t } = useLanguage();
 
-  // Aktif Proje State (Oturum boyunca RAM'de tutulur, geçmişe kaydedilmez)
-  const [project, setProject] = useState<ProjectData>(() => SAMPLE_PROJECTS[0]);
+  // Aktif Proje & Geri/İleri Alma (Undo/Redo) Geçmiş Yönetimi
+  const history = useHistory(SAMPLE_PROJECTS[0], { maxHistory: 50 });
+  const project = history.state;
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
+
+  // Seçili Ek Fotoğraf / Çıkartma ID'si
+  const [selectedOverlayId, setSelectedOverlayId] = useState<string | null>(null);
 
   // Kategori ve Şablon State (IndexedDB'de tutulur)
   const [categories, setCategories] = useState<CategoryDefinition[]>(PRESET_CATEGORIES);
@@ -57,9 +65,9 @@ export function App() {
   // Aktif Slide
   const currentSlide: SlideData = project.slides[activeSlideIndex] || project.slides[0];
 
-  // Slide Güncelleme
-  const updateCurrentSlide = useCallback((updates: Partial<SlideData>) => {
-    setProject((prev) => {
+  // Slide Güncelleme (Geçmiş kaydı seçeneği ile)
+  const updateCurrentSlide = useCallback((updates: Partial<SlideData>, recordHistory: boolean = true) => {
+    history.set((prev) => {
       const newSlides = [...prev.slides];
       newSlides[activeSlideIndex] = {
         ...newSlides[activeSlideIndex],
@@ -69,17 +77,18 @@ export function App() {
         ...prev,
         slides: newSlides
       };
-    });
-  }, [activeSlideIndex]);
+    }, recordHistory);
+  }, [activeSlideIndex, history]);
 
   // Yeni Sayfa Ekleme
   const handleAddSlide = (categoryId: string = 'haberler') => {
     const newSlide = createNewSlide(categoryId, project.slides.length);
-    setProject((prev) => ({
+    history.set((prev) => ({
       ...prev,
       slides: [...prev.slides, newSlide]
-    }));
+    }), true);
     setActiveSlideIndex(project.slides.length);
+    setSelectedOverlayId(null);
   };
 
   // Sayfa Çoğaltma
@@ -92,7 +101,7 @@ export function App() {
     };
     const newSlides = [...project.slides];
     newSlides.splice(index + 1, 0, clonedSlide);
-    setProject((prev) => ({ ...prev, slides: newSlides }));
+    history.set((prev) => ({ ...prev, slides: newSlides }), true);
     setActiveSlideIndex(index + 1);
   };
 
@@ -100,8 +109,9 @@ export function App() {
   const handleDeleteSlide = (index: number) => {
     if (project.slides.length <= 1) return;
     const newSlides = project.slides.filter((_, i) => i !== index);
-    setProject((prev) => ({ ...prev, slides: newSlides }));
+    history.set((prev) => ({ ...prev, slides: newSlides }), true);
     setActiveSlideIndex(Math.max(0, index - 1));
+    setSelectedOverlayId(null);
   };
 
   // Sayfa Sıralama
@@ -110,7 +120,7 @@ export function App() {
     const newSlides = [...project.slides];
     const [moved] = newSlides.splice(fromIndex, 1);
     newSlides.splice(toIndex, 0, moved);
-    setProject((prev) => ({ ...prev, slides: newSlides }));
+    history.set((prev) => ({ ...prev, slides: newSlides }), true);
     setActiveSlideIndex(toIndex);
   };
 
@@ -118,8 +128,9 @@ export function App() {
   const handleCreateNewProject = () => {
     if (confirm(t('confirmNewProject'))) {
       const newProj = createNewProject('Yeni BGY Gönderisi', currentSlide.categoryId);
-      setProject(newProj);
+      history.reset(newProj);
       setActiveSlideIndex(0);
+      setSelectedOverlayId(null);
     }
   };
 
@@ -143,8 +154,43 @@ export function App() {
             </div>
           </div>
 
-          {/* Hızlı İşlem Butonları & Dil Seçici */}
+          {/* Hızlı İşlem Butonları (Undo, Redo, Dil, Yeni Proje, İndir) */}
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Hamleleri İleri/Geri Sarma (Undo / Redo Buton Grubu) */}
+            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+              {/* Geri Al (Ctrl+Z) */}
+              <button
+                type="button"
+                onClick={history.undo}
+                disabled={!history.canUndo}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  history.canUndo
+                    ? 'text-slate-200 hover:bg-slate-800 hover:text-white active:scale-95 cursor-pointer'
+                    : 'text-slate-600 opacity-40 cursor-not-allowed'
+                }`}
+                title={t('undo')}
+              >
+                <Undo2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{t('undoShort')}</span>
+              </button>
+
+              {/* İleri Al (Ctrl+Y) */}
+              <button
+                type="button"
+                onClick={history.redo}
+                disabled={!history.canRedo}
+                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  history.canRedo
+                    ? 'text-slate-200 hover:bg-slate-800 hover:text-white active:scale-95 cursor-pointer'
+                    : 'text-slate-600 opacity-40 cursor-not-allowed'
+                }`}
+                title={t('redo')}
+              >
+                <Redo2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">{t('redoShort')}</span>
+              </button>
+            </div>
+
             {/* Dil Seçici (TR / EN) */}
             <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
               <button
@@ -202,7 +248,10 @@ export function App() {
         <SlideTabs
           slides={project.slides}
           activeSlideIndex={activeSlideIndex}
-          onSelectSlide={setActiveSlideIndex}
+          onSelectSlide={(idx) => {
+            setActiveSlideIndex(idx);
+            setSelectedOverlayId(null);
+          }}
           onAddSlide={handleAddSlide}
           onDuplicateSlide={handleDuplicateSlide}
           onDeleteSlide={handleDeleteSlide}
@@ -261,9 +310,20 @@ export function App() {
           slideIndex={activeSlideIndex}
           totalSlides={project.slides.length}
           aspectRatio={project.aspectRatio}
-          onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
-          onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
+          onPrevSlide={() => {
+            setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+            setSelectedOverlayId(null);
+          }}
+          onNextSlide={() => {
+            setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1));
+            setSelectedOverlayId(null);
+          }}
           projectTitle={project.title}
+          selectedOverlayId={selectedOverlayId}
+          onSelectOverlay={setSelectedOverlayId}
+          onUpdateSlide={updateCurrentSlide}
+          onStartTransaction={history.startTransaction}
+          onCommitTransaction={history.commitTransaction}
         />
       </div>
 
@@ -280,10 +340,17 @@ export function App() {
             />
           </div>
 
-          {/* 2. Görsel Yükleme & Kadrajlama */}
-          <div className={`${mobileTab === 'image' ? 'block' : 'hidden'} lg:block`}>
+          {/* 2. Görsel Yükleme & Fotoğraf Üstü Fotoğraf / Çıkartma Paneli */}
+          <div className={`${mobileTab === 'image' ? 'block' : 'hidden'} lg:block space-y-4`}>
             <ImageUploader
               slide={currentSlide}
+              onChange={updateCurrentSlide}
+            />
+
+            <ImageOverlayManager
+              slide={currentSlide}
+              selectedOverlayId={selectedOverlayId}
+              onSelectOverlay={setSelectedOverlayId}
               onChange={updateCurrentSlide}
             />
           </div>
@@ -307,9 +374,20 @@ export function App() {
             slideIndex={activeSlideIndex}
             totalSlides={project.slides.length}
             aspectRatio={project.aspectRatio}
-            onPrevSlide={() => setActiveSlideIndex((prev) => Math.max(0, prev - 1))}
-            onNextSlide={() => setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1))}
+            onPrevSlide={() => {
+              setActiveSlideIndex((prev) => Math.max(0, prev - 1));
+              setSelectedOverlayId(null);
+            }}
+            onNextSlide={() => {
+              setActiveSlideIndex((prev) => Math.min(project.slides.length - 1, prev + 1));
+              setSelectedOverlayId(null);
+            }}
             projectTitle={project.title}
+            selectedOverlayId={selectedOverlayId}
+            onSelectOverlay={setSelectedOverlayId}
+            onUpdateSlide={updateCurrentSlide}
+            onStartTransaction={history.startTransaction}
+            onCommitTransaction={history.commitTransaction}
           />
         </div>
       </main>
@@ -325,4 +403,5 @@ export function App() {
 }
 
 export default App;
+
 

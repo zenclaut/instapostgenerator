@@ -40,6 +40,7 @@ export const createNewSlide = (categoryId: string = 'haberler', index: number = 
     swipeText: 'YANA KAYDIR ➔',
     swipeTextColor: '#FFFFFF',
     showPaginationDots: true,
+    overlays: [],
     fontSize: 29,
     titleFontSize: 32,
     titleColor: '#FFFFFF',

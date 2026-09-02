@@ -142,6 +142,36 @@ export const translations = {
     mobileTabImage: 'Görsel',
     mobileTabLayers: 'Katmanlar',
 
+    // Undo / Redo
+    undo: 'Geri Al (Ctrl+Z)',
+    redo: 'İleri Al (Ctrl+Y)',
+    undoShort: 'Geri Al',
+    redoShort: 'İleri Al',
+
+    // Photo Overlays & Stickers
+    overlaySectionTitle: 'Fotoğraf Üstü Fotoğraf & Çıkartmalar',
+    overlaySectionSub: 'Gönderinizin üzerine ek fotoğraflar, logolar veya çıkartmalar ekleyin',
+    addOverlayImage: '+ Fotoğraf / Çıkartma Ekle',
+    uploadOverlayHint: 'PNG, JPG, WEBP, SVG • Saydam PNG desteklenir',
+    noOverlaysYet: 'Henüz ek fotoğraf eklenmedi. Fotoğraf ekleyip önizleme içinden sürükleyip boyutlandırabilirsiniz.',
+    interactiveHelp: '💡 İpucu: Önizlemedeki fotoğrafa tıklayarak doğrudan sürükleyebilir ve köşelerinden boyutlandırabilirsiniz!',
+    cornerRadius: 'Köşe Yuvarlama',
+    cornerSharp: 'Keskin (0px)',
+    cornerSoft: 'Yuvarlak',
+    cornerCircle: 'Tam Daire',
+    overlayScale: 'Görsel Boyutu',
+    overlayOpacity: 'Saydamlık (Opaklık)',
+    overlayBorder: 'Kenarlık Çerçevesi',
+    overlayShadow: 'Gölge Efekti',
+    bringForward: 'Öne Getir',
+    sendBackward: 'Arkaya Gönder',
+    centerOverlay: 'Merkeze Hizala',
+    duplicateOverlay: 'Çoğalt',
+    deleteOverlay: 'Görseli Kaldır',
+    selectedOverlay: 'Seçili Fotoğraf',
+    deselect: 'Seçimi Kaldır',
+    overlayCount: '{count} Ek Görsel',
+
     // Export Modal
     exportGalleryTitle: 'Dışa Aktarma & İndirme Galerisi',
     exportGallerySub: '{count} Sayfalık Carousel • Instagram {ratio}',
@@ -294,6 +324,36 @@ export const translations = {
     mobileTabText: 'Text',
     mobileTabImage: 'Image',
     mobileTabLayers: 'Layers',
+
+    // Undo / Redo
+    undo: 'Undo (Ctrl+Z)',
+    redo: 'Redo (Ctrl+Y)',
+    undoShort: 'Undo',
+    redoShort: 'Redo',
+
+    // Photo Overlays & Stickers
+    overlaySectionTitle: 'Photo Overlays & Stickers',
+    overlaySectionSub: 'Add secondary photos, badges, logos or stickers over your post',
+    addOverlayImage: '+ Add Photo / Sticker',
+    uploadOverlayHint: 'PNG, JPG, WEBP, SVG • Transparent PNGs supported',
+    noOverlaysYet: 'No photo overlays added yet. Add a photo and reposition or resize it directly in the preview.',
+    interactiveHelp: '💡 Pro Tip: Click on the photo inside the preview to drag, reposition and resize with corner handles!',
+    cornerRadius: 'Corner Rounding',
+    cornerSharp: 'Sharp (0px)',
+    cornerSoft: 'Rounded',
+    cornerCircle: 'Circle',
+    overlayScale: 'Image Size',
+    overlayOpacity: 'Opacity',
+    overlayBorder: 'Border Stroke',
+    overlayShadow: 'Drop Shadow',
+    bringForward: 'Bring Forward',
+    sendBackward: 'Send Backward',
+    centerOverlay: 'Center Align',
+    duplicateOverlay: 'Duplicate',
+    deleteOverlay: 'Remove Image',
+    selectedOverlay: 'Selected Photo',
+    deselect: 'Deselect',
+    overlayCount: '{count} Overlays',
 
     // Export Modal
     exportGalleryTitle: 'Export & Download Gallery',
