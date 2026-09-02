@@ -46,7 +46,8 @@ export const createNewSlide = (categoryId: string = 'haberler', index: number = 
     fontFamily: 'Montserrat',
     textAlign: 'center',
     textColor: '#FFFFFF',
-    highlightColor: primaryHighlight
+    highlightColor: primaryHighlight,
+    autoFontSize: true
   };
 };
 
@@ -92,7 +93,8 @@ export const SAMPLE_PROJECTS: ProjectData[] = [
         fontFamily: 'Montserrat',
         textAlign: 'center',
         textColor: '#FFFFFF',
-        highlightColor: '#FF5145'
+        highlightColor: '#FF5145',
+        autoFontSize: true
       },
       {
         id: 'slide-h-2',
@@ -116,7 +118,8 @@ export const SAMPLE_PROJECTS: ProjectData[] = [
         fontFamily: 'Montserrat',
         textAlign: 'center',
         textColor: '#FFFFFF',
-        highlightColor: '#FF5145'
+        highlightColor: '#FF5145',
+        autoFontSize: true
       }
     ]
   },
@@ -149,7 +152,8 @@ export const SAMPLE_PROJECTS: ProjectData[] = [
         fontFamily: 'Montserrat',
         textAlign: 'center',
         textColor: '#FFFFFF',
-        highlightColor: '#F6049D'
+        highlightColor: '#F6049D',
+        autoFontSize: true
       }
     ]
   }

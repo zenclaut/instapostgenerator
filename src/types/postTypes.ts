@@ -81,6 +81,7 @@ export interface SlideData {
   highlightColor: string;     // Kategoriye özel vurgu rengi (#FF5145, #F6049D vb.)
   textOffsetX?: number;       // Metin yatay konumu (px)
   textOffsetY?: number;       // Metin dikey konumu (px)
+  autoFontSize?: boolean;     // Metin uzunluğuna göre puntoyu otomatik ayarlama
 }
 
 

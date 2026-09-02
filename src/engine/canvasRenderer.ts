@@ -243,14 +243,44 @@ export async function renderSlideToCanvas(
 
   const contentPaddingX = 80;
   const maxTextWidth = baseWidth - (contentPaddingX * 2);
-  const bottomReservedArea = 140;
-  const textBottomAnchor = baseHeight - bottomReservedArea;
 
+  // name.PNG (BGY Haberler rozeti) ve logo.PNG (Monogram) katmanlarına göre dinamik hedef alan
+  const nameLayer = activeLayers.find((l) => l.id === 'name');
+  const logoLayer = activeLayers.find((l) => l.id === 'logo' || l.id === 'logo-white');
+
+  // Varsayılan güvenli sınırlar (1080x1440 üzerinde name: 1064 altı, logo: 1310 üstü)
+  let topBoundary = 1070;
+  if (nameLayer) {
+    topBoundary = 1065 + (nameLayer.offsetY || 0) + 8;
+  }
+  let bottomBoundary = 1305;
+  if (logoLayer) {
+    bottomBoundary = 1310 + (logoLayer.offsetY || 0) - 8;
+  }
+
+  const availableHeight = Math.max(120, bottomBoundary - topBoundary);
   const fontFam = slide.fontFamily || 'Metropolis, Montserrat, sans-serif';
-  const bodyFontSize = slide.fontSize || 29;
-  const lineHeight = bodyFontSize * 1.42;
   const titleFontSize = slide.titleFontSize || 32;
   const titleLineHeight = titleFontSize * 1.35;
+
+  const isAuto = slide.autoFontSize !== false;
+  let bodyFontSize = slide.fontSize || 29;
+
+  if (isAuto) {
+    bodyFontSize = calculateAutoFontSize(ctx, {
+      contentHtml: slide.contentHtml,
+      title: slide.title,
+      titleFontSize,
+      fontFamily: fontFam,
+      maxTextWidth,
+      targetHeight: availableHeight,
+      minFontSize: 18,
+      maxFontSize: 42,
+      textColor: slide.textColor || '#FFFFFF'
+    });
+  }
+
+  const lineHeight = bodyFontSize * 1.42;
 
   let titleLines: string[] = [];
   if (slide.title && slide.title.trim().length > 0) {
@@ -265,7 +295,8 @@ export async function renderSlideToCanvas(
   const totalBodyHeight = wrappedLines.length * lineHeight;
   const totalContentBlockHeight = totalTitleHeight + totalBodyHeight;
 
-  let currentDrawY = textBottomAnchor - totalContentBlockHeight + 10 + textOffY;
+  // Header ve Logo arasında kusursuz dikey ortalama
+  let currentDrawY = topBoundary + ((availableHeight - totalContentBlockHeight) / 2) + textOffY;
 
   // Başlık Çizimi
   if (titleLines.length > 0) {
@@ -335,7 +366,80 @@ export async function renderSlideToCanvas(
   ctx.restore();
 }
 
-function wrapPlainString(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+export interface AutoFontSizeOptions {
+  contentHtml: string;
+  title?: string;
+  titleFontSize?: number;
+  fontFamily: string;
+  maxTextWidth: number;
+  targetHeight: number;
+  minFontSize?: number;
+  maxFontSize?: number;
+  textColor?: string;
+}
+
+/**
+ * Verilen metin ve başlık için BGY post şablonunda (BGY Haberler rozeti ve alt logo arasında)
+ * en ideal ve kusursuz hizayı sağlayacak punto büyüklüğünü (fontSize) otomatik hesaplar.
+ */
+export function calculateAutoFontSize(
+  ctx: CanvasRenderingContext2D,
+  options: AutoFontSizeOptions
+): number {
+  const {
+    contentHtml,
+    title = '',
+    titleFontSize = 32,
+    fontFamily,
+    maxTextWidth,
+    targetHeight,
+    minFontSize = 18,
+    maxFontSize = 42,
+    textColor = '#FFFFFF'
+  } = options;
+
+  if (!contentHtml || contentHtml.trim().length === 0) {
+    return maxFontSize;
+  }
+
+  const rawSpans = parseHtmlToSpans(contentHtml, textColor);
+
+  // Başlık yüksekliği
+  let titleLinesCount = 0;
+  if (title && title.trim().length > 0) {
+    ctx.font = `800 ${titleFontSize}px ${fontFamily}`;
+    const lines = wrapPlainString(ctx, title, maxTextWidth);
+    titleLinesCount = lines.length;
+  }
+  const titleLineHeight = titleFontSize * 1.35;
+  const totalTitleHeight = titleLinesCount > 0 ? (titleLinesCount * titleLineHeight) + 16 : 0;
+  const availableBodyHeight = Math.max(40, targetHeight - totalTitleHeight);
+
+  // Binary search ile hedef yüksekliğe sığacak en büyük puntoyu bul
+  let low = minFontSize;
+  let high = maxFontSize;
+  let bestSize = minFontSize;
+
+  while (low <= high) {
+    const testSize = Math.floor((low + high) / 2);
+    const lineHeight = testSize * 1.42;
+    const wrappedLines = wrapRichSpans(ctx, rawSpans, maxTextWidth, testSize, fontFamily);
+    const bodyHeight = wrappedLines.length * lineHeight;
+
+    const fitsHeight = bodyHeight <= availableBodyHeight;
+
+    if (fitsHeight) {
+      bestSize = testSize;
+      low = testSize + 1; // Daha büyük punto sığıyor mu dene
+    } else {
+      high = testSize - 1; // Sığmadı, küçült
+    }
+  }
+
+  return bestSize;
+}
+
+export function wrapPlainString(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
   let currentLine = '';
@@ -359,7 +463,7 @@ function wrapPlainString(ctx: CanvasRenderingContext2D, text: string, maxWidth: 
   return lines;
 }
 
-function wrapRichSpans(
+export function wrapRichSpans(
   ctx: CanvasRenderingContext2D,
   spans: TextSpan[],
   maxWidth: number,

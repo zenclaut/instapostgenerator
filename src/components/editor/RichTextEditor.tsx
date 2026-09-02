@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import type { SlideData, CategoryDefinition } from '../../types/postTypes';
 import { PRESET_CATEGORIES } from '../../engine/categoryLoader';
+import { calculateAutoFontSize } from '../../engine/canvasRenderer';
 import { useLanguage } from '../../i18n/LanguageContext';
 
 interface RichTextEditorProps {
@@ -39,9 +40,52 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ slide, categorie
   const { t } = useLanguage();
   const editorRef = useRef<HTMLDivElement>(null);
   const [isPositionSectionOpen, setIsPositionSectionOpen] = useState(false);
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const currentCategory = categories.find((c) => c.id === slide.categoryId) || PRESET_CATEGORIES[0];
   const primaryAccent = currentCategory.fontInfo.colors.find((c) => c.color !== '#FFFFFF')?.color || '#FF5145';
+
+  const isAuto = slide.autoFontSize !== false;
+
+  const effectiveFontSize = React.useMemo(() => {
+    if (!isAuto) return slide.fontSize;
+    if (typeof document === 'undefined') return slide.fontSize;
+
+    if (!offscreenCanvasRef.current) {
+      offscreenCanvasRef.current = document.createElement('canvas');
+    }
+    const ctx = offscreenCanvasRef.current.getContext('2d');
+    if (!ctx) return slide.fontSize;
+
+    const nameLayer = slide.layers?.find((l) => l.enabled && l.id === 'name');
+    const logoLayer = slide.layers?.find((l) => l.enabled && (l.id === 'logo' || l.id === 'logo-white'));
+    let topBoundary = 1070;
+    if (nameLayer) topBoundary = 1065 + (nameLayer.offsetY || 0) + 8;
+    let bottomBoundary = 1305;
+    if (logoLayer) bottomBoundary = 1310 + (logoLayer.offsetY || 0) - 8;
+    const availableHeight = Math.max(120, bottomBoundary - topBoundary);
+
+    return calculateAutoFontSize(ctx, {
+      contentHtml: slide.contentHtml,
+      title: slide.title,
+      titleFontSize: slide.titleFontSize || 32,
+      fontFamily: slide.fontFamily || 'Montserrat',
+      maxTextWidth: 920,
+      targetHeight: availableHeight,
+      minFontSize: 18,
+      maxFontSize: 42,
+      textColor: slide.textColor || '#FFFFFF'
+    });
+  }, [
+    isAuto,
+    slide.fontSize,
+    slide.contentHtml,
+    slide.title,
+    slide.titleFontSize,
+    slide.fontFamily,
+    slide.textColor,
+    slide.layers
+  ]);
 
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== slide.contentHtml) {
@@ -179,22 +223,57 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ slide, categorie
           </button>
         </div>
 
-        {/* Punto Boyutu */}
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] text-slate-400 font-medium">{t('fontSize')}:</span>
-          <div className="flex items-center gap-1">
+        {/* Punto Boyutu & Otomatik Büyüklük Seçeneği */}
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          {/* Otomatik Büyüklük Aç/Kapa Butonu */}
+          <button
+            type="button"
+            onClick={() => {
+              const nextAuto = !isAuto;
+              onChange({ 
+                autoFontSize: nextAuto,
+                ...(nextAuto ? {} : { fontSize: effectiveFontSize })
+              });
+            }}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border select-none shadow-sm active:scale-95 ${
+              isAuto
+                ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-emerald-950/40'
+                : 'bg-slate-800/80 border-slate-700 text-slate-400 hover:text-slate-200 hover:border-slate-600'
+            }`}
+            title={t('autoFontSizeDesc')}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${isAuto ? 'animate-pulse text-emerald-400' : 'text-slate-400'}`} />
+            <span>{t('autoFontSize')}</span>
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] text-slate-400 font-medium hidden sm:inline">{t('fontSize')}:</span>
             <input
               type="range"
-              min="20"
-              max="42"
+              min="18"
+              max="46"
               step="1"
-              value={slide.fontSize}
-              onChange={(e) => onChange({ fontSize: parseInt(e.target.value) })}
+              value={effectiveFontSize}
+              onChange={(e) => {
+                const newSize = parseInt(e.target.value);
+                onChange({ 
+                  fontSize: newSize,
+                  autoFontSize: false 
+                });
+              }}
               className="w-20 accent-red-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
+              title={isAuto ? t('manualModeHint') : `${slide.fontSize}px`}
             />
-            <span className="text-xs font-mono text-slate-300 w-7 text-right">
-              {slide.fontSize}px
-            </span>
+            <div className="flex items-center gap-1 min-w-[56px] justify-end">
+              <span className="text-xs font-mono font-bold text-slate-200">
+                {effectiveFontSize}px
+              </span>
+              {isAuto && (
+                <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-1 py-0.5 rounded leading-none">
+                  {t('autoBadge')}
+                </span>
+              )}
+            </div>
           </div>
         </div>
       </div>
