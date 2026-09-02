@@ -137,33 +137,33 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#070b12] text-slate-100 flex flex-col selection:bg-red-500/30 selection:text-red-200">
       {/* Header Bar */}
-      <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/90 px-4 lg:px-8 py-3">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-slate-950/85 backdrop-blur-xl border-b border-slate-800/90 px-2.5 sm:px-4 lg:px-8 py-2 sm:py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 flex-nowrap">
           {/* Logo & Başlık */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-red-800 flex items-center justify-center text-white font-black shadow-lg shadow-red-950/80 border border-red-500/40">
-              <Flame className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 shrink">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-red-600 to-red-800 flex items-center justify-center text-white font-black shadow-lg shadow-red-950/80 border border-red-500/40 shrink-0">
+              <Flame className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-base font-black text-white tracking-tight flex items-center gap-1.5">
-                <span>{t('appTitle')}</span>
-                <span className="text-[10px] uppercase font-bold bg-red-600/30 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full">
+            <div className="min-w-0">
+              <h1 className="text-xs sm:text-base font-black text-white tracking-tight flex items-center gap-1 sm:gap-1.5 truncate">
+                <span className="truncate">{t('appTitle')}</span>
+                <span className="hidden sm:inline-block text-[10px] uppercase font-bold bg-red-600/30 border border-red-500/40 text-red-300 px-2 py-0.5 rounded-full shrink-0">
                   {t('studioBadge')}
                 </span>
               </h1>
             </div>
           </div>
 
-          {/* Hızlı İşlem Butonları (Undo, Redo, Dil, Yeni Proje, İndir) */}
-          <div className="flex items-center gap-2 flex-wrap">
+          {/* Hızlı İşlem Butonları (Tek Row - Undo, Redo, Dil, Yeni Proje, İndir) */}
+          <div className="flex items-center gap-1 sm:gap-2 flex-nowrap shrink-0">
             {/* Hamleleri İleri/Geri Sarma (Undo / Redo Buton Grubu) */}
-            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+            <div className="flex items-center gap-0.5 sm:gap-1 bg-slate-900/90 p-0.5 sm:p-1 rounded-xl border border-slate-800">
               {/* Geri Al (Ctrl+Z) */}
               <button
                 type="button"
                 onClick={history.undo}
                 disabled={!history.canUndo}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   history.canUndo
                     ? 'text-slate-200 hover:bg-slate-800 hover:text-white active:scale-95 cursor-pointer'
                     : 'text-slate-600 opacity-40 cursor-not-allowed'
@@ -171,7 +171,6 @@ export function App() {
                 title={t('undo')}
               >
                 <Undo2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{t('undoShort')}</span>
               </button>
 
               {/* İleri Al (Ctrl+Y) */}
@@ -179,7 +178,7 @@ export function App() {
                 type="button"
                 onClick={history.redo}
                 disabled={!history.canRedo}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`p-1.5 sm:px-2.5 sm:py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   history.canRedo
                     ? 'text-slate-200 hover:bg-slate-800 hover:text-white active:scale-95 cursor-pointer'
                     : 'text-slate-600 opacity-40 cursor-not-allowed'
@@ -187,56 +186,53 @@ export function App() {
                 title={t('redo')}
               >
                 <Redo2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">{t('redoShort')}</span>
               </button>
             </div>
 
-            {/* Dil Seçici (TR / EN) */}
-            <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800 text-xs">
+            {/* Dil Seçici (TR / EN - Temiz & Kompakt) */}
+            <div className="flex items-center gap-0.5 bg-slate-900/90 p-0.5 sm:p-1 rounded-xl border border-slate-800 text-[11px] sm:text-xs">
               <button
                 type="button"
                 onClick={() => setLanguage('tr')}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold transition-all ${
+                className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg font-bold transition-all ${
                   language === 'tr'
                     ? 'bg-red-600 text-white shadow'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
                 title="Türkçe"
               >
-                <span>TR</span>
-                <span className="text-xs">🇹🇷</span>
+                TR
               </button>
               <button
                 type="button"
                 onClick={() => setLanguage('en')}
-                className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg font-bold transition-all ${
+                className={`px-2 py-1 sm:px-2.5 sm:py-1 rounded-lg font-bold transition-all ${
                   language === 'en'
                     ? 'bg-red-600 text-white shadow'
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
                 title="English"
               >
-                <span>EN</span>
-                <span className="text-xs">🇬🇧</span>
+                EN
               </button>
             </div>
 
             {/* Yeni Proje */}
             <button
               onClick={handleCreateNewProject}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1 p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors"
               title={t('newProject')}
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>{t('newProject')}</span>
+              <span className="hidden md:inline">{t('newProject')}</span>
             </button>
 
             {/* Dışa Aktar & İndir (Ana Buton) */}
             <button
               onClick={() => setIsExportModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold shadow-lg shadow-red-950/60 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-2.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white text-xs font-bold shadow-lg shadow-red-950/60 transition-all active:scale-95 shrink-0"
             >
-              <Download className="w-4 h-4" />
+              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span>{t('exportDownload')}</span>
             </button>
           </div>
